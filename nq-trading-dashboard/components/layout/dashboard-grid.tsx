@@ -8,10 +8,12 @@ import "react-resizable/css/styles.css";
 
 import { AiInsightsWidget } from "../widgets/ai-insights";
 import { AiSummaryWidget } from "../widgets/ai-summary";
+import { AnalyticsWidget } from "../widgets/analytics";
 import { CalendarWidget } from "../widgets/calendar";
 import { ChartWidget } from "../widgets/chart";
 import { CorrelationWidget } from "../widgets/correlation";
 import { HeatmapWidget } from "../widgets/heatmap";
+import { JournalWidget } from "../widgets/journal";
 import { MarketInternals } from "../widgets/market-internals";
 import { MarketOverview } from "../widgets/market-overview";
 import { MultiTimeframeTrend } from "../widgets/mtf-trend";
@@ -33,28 +35,28 @@ const ResponsiveGridLayout = dynamic(
 const COLS = { lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 };
 const BREAKPOINTS = { lg: 1400, md: 1100, sm: 800, xs: 540, xxs: 0 };
 
-// Defaults are tuned for an institutional desktop; everything is
-// drag-and-resize so per-user layouts persist via the storage key below.
 const DEFAULT_LAYOUTS: Layouts = {
   lg: [
-    { i: "chart",      x: 0, y: 0,  w: 8, h: 20, minW: 6, minH: 16 },
-    { i: "aiSummary",  x: 8, y: 0,  w: 4, h: 24, minW: 3, minH: 18 },
-    { i: "insights",   x: 0, y: 20, w: 4, h: 14, minW: 3, minH: 10 },
-    { i: "market",     x: 4, y: 20, w: 4, h: 14, minW: 3, minH: 10 },
-    { i: "vprofile",   x: 8, y: 24, w: 4, h: 16, minW: 3, minH: 14 },
-    { i: "correlation",x: 0, y: 34, w: 4, h: 12, minW: 3, minH: 10 },
-    { i: "volatility", x: 4, y: 34, w: 4, h: 10, minW: 3, minH: 8 },
-    { i: "mtfTrend",   x: 0, y: 46, w: 4, h: 10, minW: 3, minH: 7 },
-    { i: "internals",  x: 4, y: 44, w: 4, h: 13, minW: 3, minH: 10 },
-    { i: "overnight",  x: 8, y: 40, w: 4, h: 14, minW: 3, minH: 8 },
-    { i: "session",    x: 0, y: 56, w: 4, h: 13, minW: 3, minH: 8 },
-    { i: "options",    x: 4, y: 57, w: 4, h: 14, minW: 3, minH: 10 },
-    { i: "calendar",   x: 0, y: 69, w: 8, h: 14, minW: 4, minH: 8 },
-    { i: "news",       x: 8, y: 54, w: 4, h: 15, minW: 3, minH: 8 },
-    { i: "watchlist",  x: 8, y: 69, w: 4, h: 14, minW: 3, minH: 6 },
-    { i: "heatmap",    x: 0, y: 83, w: 8, h: 20, minW: 4, minH: 14 },
-    { i: "calculator", x: 8, y: 83, w: 4, h: 13, minW: 3, minH: 10 },
-    { i: "checklist",  x: 0, y: 103, w: 12, h: 11, minW: 3, minH: 8 },
+    { i: "chart",      x: 0, y: 0,   w: 8, h: 20, minW: 6, minH: 16 },
+    { i: "aiSummary",  x: 8, y: 0,   w: 4, h: 24, minW: 3, minH: 18 },
+    { i: "insights",   x: 0, y: 20,  w: 4, h: 14, minW: 3, minH: 10 },
+    { i: "market",     x: 4, y: 20,  w: 4, h: 14, minW: 3, minH: 10 },
+    { i: "vprofile",   x: 8, y: 24,  w: 4, h: 16, minW: 3, minH: 14 },
+    { i: "correlation",x: 0, y: 34,  w: 4, h: 12, minW: 3, minH: 10 },
+    { i: "volatility", x: 4, y: 34,  w: 4, h: 10, minW: 3, minH: 8 },
+    { i: "mtfTrend",   x: 0, y: 46,  w: 4, h: 10, minW: 3, minH: 7 },
+    { i: "internals",  x: 4, y: 44,  w: 4, h: 13, minW: 3, minH: 10 },
+    { i: "overnight",  x: 8, y: 40,  w: 4, h: 14, minW: 3, minH: 8 },
+    { i: "session",    x: 0, y: 56,  w: 4, h: 13, minW: 3, minH: 8 },
+    { i: "options",    x: 4, y: 57,  w: 4, h: 14, minW: 3, minH: 10 },
+    { i: "calendar",   x: 0, y: 69,  w: 8, h: 14, minW: 4, minH: 8 },
+    { i: "news",       x: 8, y: 54,  w: 4, h: 15, minW: 3, minH: 8 },
+    { i: "watchlist",  x: 8, y: 69,  w: 4, h: 14, minW: 3, minH: 6 },
+    { i: "heatmap",    x: 0, y: 83,  w: 8, h: 20, minW: 4, minH: 14 },
+    { i: "calculator", x: 8, y: 83,  w: 4, h: 13, minW: 3, minH: 10 },
+    { i: "journal",    x: 0, y: 103, w: 8, h: 16, minW: 4, minH: 10 },
+    { i: "analytics",  x: 8, y: 96,  w: 4, h: 23, minW: 3, minH: 16 },
+    { i: "checklist",  x: 0, y: 119, w: 12, h: 11, minW: 3, minH: 8 },
   ],
   md: [
     { i: "chart",      x: 0, y: 0,   w: 10, h: 20 },
@@ -74,7 +76,9 @@ const DEFAULT_LAYOUTS: Layouts = {
     { i: "watchlist",  x: 5, y: 96,  w: 5,  h: 12 },
     { i: "heatmap",    x: 5, y: 108, w: 5,  h: 20 },
     { i: "calculator", x: 0, y: 123, w: 5,  h: 13 },
-    { i: "checklist",  x: 0, y: 136, w: 10, h: 13 },
+    { i: "journal",    x: 0, y: 136, w: 10, h: 16 },
+    { i: "analytics",  x: 0, y: 152, w: 10, h: 22 },
+    { i: "checklist",  x: 0, y: 174, w: 10, h: 13 },
   ],
   sm: [
     { i: "chart",      x: 0, y: 0,   w: 6, h: 22 },
@@ -94,7 +98,9 @@ const DEFAULT_LAYOUTS: Layouts = {
     { i: "heatmap",    x: 0, y: 215, w: 6, h: 22 },
     { i: "watchlist",  x: 0, y: 237, w: 6, h: 12 },
     { i: "calculator", x: 0, y: 249, w: 6, h: 13 },
-    { i: "checklist",  x: 0, y: 262, w: 6, h: 12 },
+    { i: "journal",    x: 0, y: 262, w: 6, h: 18 },
+    { i: "analytics",  x: 0, y: 280, w: 6, h: 24 },
+    { i: "checklist",  x: 0, y: 304, w: 6, h: 12 },
   ],
   xs: [
     { i: "chart",      x: 0, y: 0,   w: 4, h: 22 },
@@ -114,7 +120,9 @@ const DEFAULT_LAYOUTS: Layouts = {
     { i: "heatmap",    x: 0, y: 233, w: 4, h: 24 },
     { i: "watchlist",  x: 0, y: 257, w: 4, h: 12 },
     { i: "calculator", x: 0, y: 269, w: 4, h: 14 },
-    { i: "checklist",  x: 0, y: 283, w: 4, h: 12 },
+    { i: "journal",    x: 0, y: 283, w: 4, h: 20 },
+    { i: "analytics",  x: 0, y: 303, w: 4, h: 26 },
+    { i: "checklist",  x: 0, y: 329, w: 4, h: 12 },
   ],
   xxs: [
     { i: "chart",      x: 0, y: 0,   w: 2, h: 24 },
@@ -134,11 +142,13 @@ const DEFAULT_LAYOUTS: Layouts = {
     { i: "heatmap",    x: 0, y: 255, w: 2, h: 26 },
     { i: "watchlist",  x: 0, y: 281, w: 2, h: 13 },
     { i: "calculator", x: 0, y: 294, w: 2, h: 15 },
-    { i: "checklist",  x: 0, y: 309, w: 2, h: 13 },
+    { i: "journal",    x: 0, y: 309, w: 2, h: 22 },
+    { i: "analytics",  x: 0, y: 331, w: 2, h: 28 },
+    { i: "checklist",  x: 0, y: 359, w: 2, h: 13 },
   ],
 };
 
-const LAYOUT_KEY = "nqdesk.layout.v6";
+const LAYOUT_KEY = "nqdesk.layout.v7";
 
 export function DashboardGrid() {
   const [layouts, setLayouts] = useState<Layouts>(DEFAULT_LAYOUTS);
@@ -201,6 +211,8 @@ export function DashboardGrid() {
       <div key="watchlist"><DragHandle /><Watchlist /></div>
       <div key="heatmap"><DragHandle /><HeatmapWidget /></div>
       <div key="calculator"><DragHandle /><PositionCalculator /></div>
+      <div key="journal"><DragHandle /><JournalWidget /></div>
+      <div key="analytics"><DragHandle /><AnalyticsWidget /></div>
       <div key="checklist"><DragHandle /><TradingChecklist /></div>
     </ResponsiveGridLayout>
   );
