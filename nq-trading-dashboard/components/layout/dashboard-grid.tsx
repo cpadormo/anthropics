@@ -6,10 +6,13 @@ import type { Layouts } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
+import { CalendarWidget } from "../widgets/calendar";
 import { ChartWidget } from "../widgets/chart";
 import { MarketInternals } from "../widgets/market-internals";
 import { MarketOverview } from "../widgets/market-overview";
 import { MultiTimeframeTrend } from "../widgets/mtf-trend";
+import { NewsWidget } from "../widgets/news";
+import { OptionsWidget } from "../widgets/options";
 import { OvernightSession } from "../widgets/overnight-session";
 import { PositionCalculator } from "../widgets/position-calculator";
 import { SessionStats } from "../widgets/session-stats";
@@ -35,66 +38,81 @@ const DEFAULT_LAYOUTS: Layouts = {
     { i: "mtfTrend",   x: 4, y: 20, w: 4, h: 10, minW: 3, minH: 7 },
     { i: "internals",  x: 0, y: 30, w: 4, h: 13, minW: 3, minH: 10 },
     { i: "overnight",  x: 4, y: 30, w: 4, h: 13, minW: 3, minH: 8 },
-    { i: "session",    x: 8, y: 30, w: 4, h: 12, minW: 3, minH: 8 },
-    { i: "watchlist",  x: 0, y: 43, w: 8, h: 11, minW: 4, minH: 6 },
-    { i: "calculator", x: 8, y: 43, w: 4, h: 13, minW: 3, minH: 10 },
-    { i: "checklist",  x: 0, y: 54, w: 12, h: 11, minW: 3, minH: 8 },
+    { i: "session",    x: 8, y: 30, w: 4, h: 13, minW: 3, minH: 8 },
+    { i: "calendar",   x: 0, y: 43, w: 8, h: 14, minW: 4, minH: 8 },
+    { i: "news",       x: 8, y: 43, w: 4, h: 14, minW: 3, minH: 8 },
+    { i: "options",    x: 0, y: 57, w: 4, h: 14, minW: 3, minH: 10 },
+    { i: "watchlist",  x: 4, y: 57, w: 4, h: 14, minW: 3, minH: 6 },
+    { i: "calculator", x: 8, y: 57, w: 4, h: 14, minW: 3, minH: 10 },
+    { i: "checklist",  x: 0, y: 71, w: 12, h: 11, minW: 3, minH: 8 },
   ],
   md: [
-    { i: "chart",      x: 0, y: 0,  w: 10, h: 20 },
-    { i: "market",     x: 0, y: 20, w: 5,  h: 12 },
-    { i: "mtfTrend",   x: 5, y: 20, w: 5,  h: 12 },
-    { i: "volatility", x: 0, y: 32, w: 5,  h: 10 },
-    { i: "internals",  x: 5, y: 32, w: 5,  h: 13 },
-    { i: "vprofile",   x: 0, y: 42, w: 5,  h: 18 },
-    { i: "overnight",  x: 5, y: 45, w: 5,  h: 12 },
-    { i: "session",    x: 0, y: 60, w: 5,  h: 11 },
-    { i: "watchlist",  x: 5, y: 57, w: 5,  h: 12 },
-    { i: "calculator", x: 0, y: 71, w: 5,  h: 13 },
-    { i: "checklist",  x: 5, y: 69, w: 5,  h: 12 },
+    { i: "chart",      x: 0, y: 0,   w: 10, h: 20 },
+    { i: "market",     x: 0, y: 20,  w: 5,  h: 12 },
+    { i: "mtfTrend",   x: 5, y: 20,  w: 5,  h: 12 },
+    { i: "volatility", x: 0, y: 32,  w: 5,  h: 10 },
+    { i: "internals",  x: 5, y: 32,  w: 5,  h: 13 },
+    { i: "vprofile",   x: 0, y: 42,  w: 5,  h: 18 },
+    { i: "overnight",  x: 5, y: 45,  w: 5,  h: 12 },
+    { i: "calendar",   x: 0, y: 60,  w: 10, h: 14 },
+    { i: "news",       x: 0, y: 74,  w: 5,  h: 14 },
+    { i: "options",    x: 5, y: 74,  w: 5,  h: 14 },
+    { i: "session",    x: 0, y: 88,  w: 5,  h: 12 },
+    { i: "watchlist",  x: 5, y: 88,  w: 5,  h: 12 },
+    { i: "calculator", x: 0, y: 100, w: 5,  h: 13 },
+    { i: "checklist",  x: 5, y: 100, w: 5,  h: 13 },
   ],
   sm: [
     { i: "chart",      x: 0, y: 0,   w: 6, h: 22 },
     { i: "market",     x: 0, y: 22,  w: 6, h: 14 },
-    { i: "internals",  x: 0, y: 36,  w: 6, h: 13 },
-    { i: "vprofile",   x: 0, y: 49,  w: 6, h: 20 },
-    { i: "volatility", x: 0, y: 69,  w: 6, h: 11 },
-    { i: "mtfTrend",   x: 0, y: 80,  w: 6, h: 11 },
-    { i: "overnight",  x: 0, y: 91,  w: 6, h: 14 },
-    { i: "session",    x: 0, y: 105, w: 6, h: 11 },
-    { i: "watchlist",  x: 0, y: 116, w: 6, h: 12 },
-    { i: "calculator", x: 0, y: 128, w: 6, h: 13 },
-    { i: "checklist",  x: 0, y: 141, w: 6, h: 12 },
+    { i: "calendar",   x: 0, y: 36,  w: 6, h: 16 },
+    { i: "news",       x: 0, y: 52,  w: 6, h: 16 },
+    { i: "internals",  x: 0, y: 68,  w: 6, h: 13 },
+    { i: "vprofile",   x: 0, y: 81,  w: 6, h: 20 },
+    { i: "volatility", x: 0, y: 101, w: 6, h: 11 },
+    { i: "mtfTrend",   x: 0, y: 112, w: 6, h: 11 },
+    { i: "options",    x: 0, y: 123, w: 6, h: 14 },
+    { i: "overnight",  x: 0, y: 137, w: 6, h: 14 },
+    { i: "session",    x: 0, y: 151, w: 6, h: 12 },
+    { i: "watchlist",  x: 0, y: 163, w: 6, h: 12 },
+    { i: "calculator", x: 0, y: 175, w: 6, h: 13 },
+    { i: "checklist",  x: 0, y: 188, w: 6, h: 12 },
   ],
   xs: [
     { i: "chart",      x: 0, y: 0,   w: 4, h: 22 },
     { i: "market",     x: 0, y: 22,  w: 4, h: 16 },
-    { i: "internals",  x: 0, y: 38,  w: 4, h: 14 },
-    { i: "vprofile",   x: 0, y: 52,  w: 4, h: 22 },
-    { i: "volatility", x: 0, y: 74,  w: 4, h: 12 },
-    { i: "mtfTrend",   x: 0, y: 86,  w: 4, h: 11 },
-    { i: "overnight",  x: 0, y: 97,  w: 4, h: 16 },
-    { i: "session",    x: 0, y: 113, w: 4, h: 12 },
-    { i: "watchlist",  x: 0, y: 125, w: 4, h: 12 },
-    { i: "calculator", x: 0, y: 137, w: 4, h: 14 },
-    { i: "checklist",  x: 0, y: 151, w: 4, h: 12 },
+    { i: "calendar",   x: 0, y: 38,  w: 4, h: 18 },
+    { i: "news",       x: 0, y: 56,  w: 4, h: 18 },
+    { i: "internals",  x: 0, y: 74,  w: 4, h: 14 },
+    { i: "vprofile",   x: 0, y: 88,  w: 4, h: 22 },
+    { i: "volatility", x: 0, y: 110, w: 4, h: 12 },
+    { i: "mtfTrend",   x: 0, y: 122, w: 4, h: 11 },
+    { i: "options",    x: 0, y: 133, w: 4, h: 15 },
+    { i: "overnight",  x: 0, y: 148, w: 4, h: 16 },
+    { i: "session",    x: 0, y: 164, w: 4, h: 12 },
+    { i: "watchlist",  x: 0, y: 176, w: 4, h: 12 },
+    { i: "calculator", x: 0, y: 188, w: 4, h: 14 },
+    { i: "checklist",  x: 0, y: 202, w: 4, h: 12 },
   ],
   xxs: [
     { i: "chart",      x: 0, y: 0,   w: 2, h: 24 },
     { i: "market",     x: 0, y: 24,  w: 2, h: 18 },
-    { i: "internals",  x: 0, y: 42,  w: 2, h: 15 },
-    { i: "vprofile",   x: 0, y: 57,  w: 2, h: 24 },
-    { i: "volatility", x: 0, y: 81,  w: 2, h: 13 },
-    { i: "mtfTrend",   x: 0, y: 94,  w: 2, h: 12 },
-    { i: "overnight",  x: 0, y: 106, w: 2, h: 18 },
-    { i: "session",    x: 0, y: 124, w: 2, h: 13 },
-    { i: "watchlist",  x: 0, y: 137, w: 2, h: 13 },
-    { i: "calculator", x: 0, y: 150, w: 2, h: 15 },
-    { i: "checklist",  x: 0, y: 165, w: 2, h: 13 },
+    { i: "calendar",   x: 0, y: 42,  w: 2, h: 20 },
+    { i: "news",       x: 0, y: 62,  w: 2, h: 20 },
+    { i: "internals",  x: 0, y: 82,  w: 2, h: 15 },
+    { i: "vprofile",   x: 0, y: 97,  w: 2, h: 24 },
+    { i: "volatility", x: 0, y: 121, w: 2, h: 13 },
+    { i: "mtfTrend",   x: 0, y: 134, w: 2, h: 12 },
+    { i: "options",    x: 0, y: 146, w: 2, h: 16 },
+    { i: "overnight",  x: 0, y: 162, w: 2, h: 18 },
+    { i: "session",    x: 0, y: 180, w: 2, h: 13 },
+    { i: "watchlist",  x: 0, y: 193, w: 2, h: 13 },
+    { i: "calculator", x: 0, y: 206, w: 2, h: 15 },
+    { i: "checklist",  x: 0, y: 221, w: 2, h: 13 },
   ],
 };
 
-const LAYOUT_KEY = "nqdesk.layout.v4";
+const LAYOUT_KEY = "nqdesk.layout.v5";
 
 export function DashboardGrid() {
   const [layouts, setLayouts] = useState<Layouts>(DEFAULT_LAYOUTS);
@@ -148,6 +166,9 @@ export function DashboardGrid() {
       <div key="internals"><DragHandle /><MarketInternals /></div>
       <div key="overnight"><DragHandle /><OvernightSession /></div>
       <div key="session"><DragHandle /><SessionStats /></div>
+      <div key="calendar"><DragHandle /><CalendarWidget /></div>
+      <div key="news"><DragHandle /><NewsWidget /></div>
+      <div key="options"><DragHandle /><OptionsWidget /></div>
       <div key="watchlist"><DragHandle /><Watchlist /></div>
       <div key="calculator"><DragHandle /><PositionCalculator /></div>
       <div key="checklist"><DragHandle /><TradingChecklist /></div>
