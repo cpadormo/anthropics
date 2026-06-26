@@ -1,6 +1,9 @@
 import "server-only";
+import type { Alert } from "../data/alerts";
 import type { Trade } from "../data/journal";
 import { getDb } from "./client";
+
+// --- Trade serialization ---
 
 function tradeToDb(t: Trade): Record<string, unknown> {
   return {
@@ -80,6 +83,8 @@ export async function deleteTrade(id: string): Promise<boolean> {
   return true;
 }
 
+// --- Layout ---
+
 export async function getLayout(): Promise<any | null> {
   const db = await getDb();
   if (!db) return null;
@@ -95,5 +100,68 @@ export async function setLayout(layout: unknown): Promise<boolean> {
     update: { layout: layout as any },
     create: { userId: "local", layout: layout as any },
   });
+  return true;
+}
+
+// --- Alert serialization ---
+
+function alertToDb(a: Alert): Record<string, unknown> {
+  return {
+    id: a.id,
+    userId: "local",
+    symbol: a.symbol,
+    condition: a.condition,
+    price: a.price,
+    active: a.active,
+    triggered: a.triggered,
+    triggeredAt: a.triggeredAt ? new Date(a.triggeredAt) : null,
+    channels: a.channels,
+  };
+}
+
+function alertFromDb(r: any): Alert {
+  return {
+    id: r.id,
+    symbol: r.symbol,
+    condition: r.condition,
+    price: r.price,
+    active: r.active,
+    triggered: r.triggered,
+    triggeredAt: r.triggeredAt ? new Date(r.triggeredAt).getTime() : null,
+    channels: r.channels ?? [],
+    note: r.note ?? "",
+    createdAt: new Date(r.createdAt).getTime(),
+  };
+}
+
+export async function listAlerts(): Promise<Alert[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db.alert.findMany({
+    where: { userId: "local" },
+    orderBy: { createdAt: "desc" },
+  });
+  return rows.map(alertFromDb);
+}
+
+export async function createAlert(a: Alert): Promise<Alert | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const created = await db.alert.create({ data: alertToDb(a) });
+  return alertFromDb(created);
+}
+
+export async function updateAlert(id: string, a: Alert): Promise<Alert | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const { id: _, ...patch } = alertToDb(a);
+  const updated = await db.alert.update({ where: { id }, data: patch });
+  return alertFromDb(updated);
+}
+
+export async function deleteAlert(id: string): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  await db.alert.delete({ where: { id } });
   return true;
 }
