@@ -9,15 +9,21 @@ export interface ProviderStatus {
 }
 
 // Single interface that every concrete data feed implements.
-// V1 / V2A ship MockDataProvider; V2B-1 adds Tradovate. V2B-3 will
-// extend with md/getChart for real candles. Widgets never depend on
-// the concrete implementation.
+// Widgets only ever talk to this surface.
 export interface DataProvider {
   subscribe(symbol: string, onTick: (q: Quote) => void): Unsubscribe;
   snapshot(symbol: string): Quote | null;
   sessionLevels(symbol: string): SessionLevels | null;
   rthStats(symbol: string): RthSessionStats | null;
   candles(symbol: string, timeframe: Timeframe, count?: number): Candle[] | null;
+  // Optional reactive variant. When present, useCandles uses it for live updates;
+  // when absent (mock), the hook just keeps the initial snapshot.
+  onCandlesChange?(
+    symbol: string,
+    timeframe: Timeframe,
+    count: number,
+    cb: (bars: Candle[]) => void,
+  ): Unsubscribe;
   status(): ProviderStatus;
   onStatusChange?(cb: (s: ProviderStatus) => void): Unsubscribe;
 }

@@ -11,7 +11,11 @@ export function useCandles(
 ): Candle[] | null {
   const [bars, setBars] = useState<Candle[] | null>(null);
   useEffect(() => {
-    setBars(getProvider().candles(symbol, timeframe, count));
+    const provider = getProvider();
+    setBars(provider.candles(symbol, timeframe, count));
+    // If the provider supports live candle updates (Tradovate), subscribe.
+    // Mock has no live updates so we just keep the initial snapshot.
+    return provider.onCandlesChange?.(symbol, timeframe, count, setBars);
   }, [symbol, timeframe, count]);
   return bars;
 }
