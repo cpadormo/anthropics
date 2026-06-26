@@ -6,6 +6,8 @@ import type { Layouts } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
+import { useDbMode } from "@/lib/hooks/use-db-mode";
+
 import { AiInsightsWidget } from "../widgets/ai-insights";
 import { AiSummaryWidget } from "../widgets/ai-summary";
 import { AnalyticsWidget } from "../widgets/analytics";
@@ -151,25 +153,51 @@ const DEFAULT_LAYOUTS: Layouts = {
 const LAYOUT_KEY = "nqdesk.layout.v7";
 
 export function DashboardGrid() {
+  const mode = useDbMode();
   const [layouts, setLayouts] = useState<Layouts>(DEFAULT_LAYOUTS);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    try {
-      const raw = localStorage.getItem(LAYOUT_KEY);
-      if (raw) setLayouts(JSON.parse(raw));
-    } catch {
-      /* fall back to defaults */
+    if (mode === "checking") return;
+    if (mode === "db") {
+      fetch("/api/settings/layout", { cache: "no-store" })
+        .then((r) => (r.ok ? r.json() : { layout: null }))
+        .then((d) => {
+          if (d?.layout) setLayouts(d.layout as Layouts);
+        })
+        .catch(() => {
+          try {
+            const raw = localStorage.getItem(LAYOUT_KEY);
+            if (raw) setLayouts(JSON.parse(raw));
+          } catch {
+            /* default layout */
+          }
+        });
+    } else {
+      try {
+        const raw = localStorage.getItem(LAYOUT_KEY);
+        if (raw) setLayouts(JSON.parse(raw));
+      } catch {
+        /* default layout */
+      }
     }
-  }, []);
+  }, [mode]);
 
   function handleChange(_current: unknown, all: Layouts) {
     setLayouts(all);
-    try {
-      localStorage.setItem(LAYOUT_KEY, JSON.stringify(all));
-    } catch {
-      /* best-effort */
+    if (mode === "db") {
+      void fetch("/api/settings/layout", {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ layout: all }),
+      });
+    } else {
+      try {
+        localStorage.setItem(LAYOUT_KEY, JSON.stringify(all));
+      } catch {
+        /* best-effort */
+      }
     }
   }
 

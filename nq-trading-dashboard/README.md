@@ -2,7 +2,7 @@
 
 Professional discretionary trading cockpit, optimized for Nasdaq-100 E-mini and Micro E-mini futures (NQ / MNQ).
 
-> **Status: V5-1** — 20 widgets live. V5-1 adds the Trading Journal and Performance Analytics on top of V4's intelligence layer. Storage is localStorage today; the Prisma schema is included as scaffolding for V5-2's Supabase sync.
+> **Status: V5-2** — Supabase + Prisma sync wired for the trading journal and dashboard layout. Storage now upgrades automatically: localStorage when no DB is configured, Postgres when `DATABASE_URL` is set. Widgets are unchanged.
 
 ## Quick start
 
@@ -12,90 +12,74 @@ npm run dev
 # open http://localhost:3000
 ```
 
-No API keys required. Every external surface (Tradovate, Finnhub, Anthropic, options, internals, heatmap constituents, journal sync) has a clean fallback with a clear "demo" or "local" pill so you can build the layout and learn the keys before wiring real data.
+No API keys required to run. Top bar shows the data feed; widgets display "demo" / "local" pills where data is synthetic or stored client-side.
 
-## Enable real data
+## Enable Supabase / Postgres sync (V5-2)
 
-Copy `.env.example` to `.env.local`. Provide only the keys you have — the dashboard upgrades surface-by-surface.
+1. Create a Supabase project (or point at any Postgres database).
+2. Add the connection string to `.env.local`:
+   ```bash
+   DATABASE_URL=postgresql://postgres:password@db.<project>.supabase.co:5432/postgres
+   ```
+3. Generate the Prisma client and push the schema (one-time):
+   ```bash
+   npm run db:generate
+   npm run db:push
+   ```
+4. Restart `npm run dev`. The Trading Journal and the dashboard layout will sync to Postgres instead of localStorage automatically.
 
-### Tradovate — live CME quotes + historical candles
+**How it works.** `/api/health` reports which providers are configured; the client probes once on mount and routes journal CRUD + layout reads/writes accordingly. If `DATABASE_URL` is set but Prisma hasn't been generated, the routes return 503 and the client falls back to localStorage with no UX change.
+
+**Security note.** V5-2 uses a single hardcoded `userId="local"` for now — it's a single-user, single-device dashboard. V5-3+ will wire Supabase Auth for multi-user / multi-device.
+
+## Enable other providers
 
 ```bash
+# Tradovate — live CME quotes + historical candles
 NEXT_PUBLIC_DATA_PROVIDER=tradovate
-TRADOVATE_ENV=demo                  # demo | live
-TRADOVATE_USERNAME=your_username
-TRADOVATE_PASSWORD=your_password
-TRADOVATE_CID=12345
-TRADOVATE_SECRET=your_app_secret
-TRADOVATE_APP_ID=NQDesk
-TRADOVATE_DEVICE_ID=nqdesk-dev
-```
+TRADOVATE_USERNAME=...
+TRADOVATE_PASSWORD=...
+TRADOVATE_CID=...
+TRADOVATE_SECRET=...
 
-### Finnhub — Economic Calendar + News
+# Finnhub — Economic Calendar + News
+FINNHUB_API_KEY=...
 
-```bash
-FINNHUB_API_KEY=your_finnhub_key
-```
-
-### Anthropic — AI Market Summary
-
-```bash
-ANTHROPIC_API_KEY=your_anthropic_key
+# Anthropic — AI Market Summary
+ANTHROPIC_API_KEY=...
 ANTHROPIC_MODEL=claude-sonnet-4-6
-```
-
-## V5-1 additions
-
-| Widget | What it does |
-| --- | --- |
-| **Trading Journal** | Inline log + edit form for symbol / side / contracts / entry / stop / exit / setup / tags / notes. R-multiple computed from `(exit - entry) / |entry - stop|`, dollar PnL from the correct point value per instrument (NQ=$20/pt, MNQ=$2/pt, ES=$50/pt, etc). Sortable table of recent trades, inline edit, delete on hover. Persists to localStorage. |
-| **Performance Analytics** | 9 stat tiles — win rate, profit factor, expectancy R, avg win/loss R, max DD (R + $), total R, net $, trade count (W/L). Equity curve in R (Recharts line) with zero reference. R-multiple distribution histogram with bars colored bull/bear by bucket sign. All computed live from the journal. |
-
-## Prisma schema (V5-2 preview)
-
-`prisma/schema.prisma` is included now as a future-ready artifact. It models `Trade`, `Watchlist`, `Alert`, and `UserSetting` on Postgres. V5-2 will wire server routes that read/write through it against Supabase; storage swap will be transparent to the widgets.
-
-When you're ready to enable:
-
-```bash
-npm install prisma @prisma/client
-DATABASE_URL=postgresql://...        # Supabase connection string
-npx prisma migrate dev --name init
 ```
 
 ## Complete widget set (20)
 
-| Widget | Purpose |
-| --- | --- |
-| Chart | Recharts candlesticks + VWAP + EMA 20/50/100/200 + Supertrend + RSI/MACD/ADX sub-panel |
-| AI Market Summary | Claude-generated bias / levels / scenarios / risks / patience (1m cadence) |
-| AI Insights | Heuristic pattern + regime detection (no LLM cost) |
-| Correlation Dashboard | 10×10 cross-asset correlation matrix |
-| Heatmaps | Sectors / Mag 7 / Semis |
-| Multi-Timeframe Trend | 4 symbols × 6 timeframes |
-| Market Overview | 11 instruments — price, daily %, change, sparkline |
-| Market Internals | TICK / TRIN / A-D / ADD / Put-Call / Risk Regime gauge |
-| Overnight & Key Levels | Asia/London/Overnight + PDH/PDL/PDC + PWH/PWL + PMH/PML + gap |
-| Session Statistics | RTH high/low, range vs avg, IB high/low, breakout state, momentum |
-| Volatility | VIX, VVIX, ATR(14, D), 20-day realized vol, range vs ATR%, 1D expected move |
-| Volume Profile | 40-bin profile, POC, 70% value area (VAH / VAL) |
-| Economic Calendar | High + medium impact events, sticky countdown to next print |
-| News Feed | Filtered, categorized headlines |
-| Options | GEX / Max Pain / dealer pos / expected move / largest OI strikes |
-| Watchlist | Sortable, per-row notes, persists locally |
-| **Trading Journal** | Log + edit trades, R-multiple + dollar PnL, persists locally |
-| **Performance Analytics** | Win rate, profit factor, expectancy, equity curve, R distribution |
-| Position Size Calculator | NQ/MNQ/ES/MES/RTY/M2K/YM/MYM, fixed-fractional risk |
-| Pre-Trade Checklist | 7-item discipline gate, persists locally |
+Unchanged from V5-1 — see Git history for the full set. The journal and layout are the only surfaces that gained DB persistence in V5-2.
+
+## Architecture additions (V5-2)
+
+```
+app/api/
+  health/                 # which providers are configured
+  journal/                # GET, POST  (DB-backed)
+  journal/[id]/           # PATCH, DELETE
+  settings/layout/        # GET, PUT
+lib/db/
+  client.ts               # lazy/optional Prisma singleton
+  repo.ts                 # listTrades / createTrade / updateTrade / deleteTrade / getLayout / setLayout
+lib/hooks/
+  use-db-mode.ts          # checking | db | local, cached module-globally
+prisma/
+  schema.prisma           # Trade / Watchlist / Alert / UserSetting on Postgres
+next.config.mjs           # serverComponentsExternalPackages for @prisma/client
+```
 
 ## Phase plan
 
 - ✅ **V1 / V2A / V2B-1 / V2B-2 / V2B-3** — Shell, charting, indicators, Tradovate adapter, derived levels
 - ✅ **V3** — Economic Calendar + News + Options
 - ✅ **V4** — AI Summary + AI Insights + Correlation + Heatmaps
-- ✅ **V5-1** — Trading Journal + Performance Analytics (this release)
-- **V5-2** — Supabase + Prisma sync: server-side journal CRUD, multi-device watchlist sync, layout persistence under DATABASE_URL.
+- ✅ **V5-1** — Trading Journal + Performance Analytics (localStorage)
+- ✅ **V5-2** — Supabase + Prisma sync for journal & layout (this release)
 - **V5-3** — Alerts (price / level / indicator / event triggers) with browser notifications + Discord / Twilio (SMS) channels.
-- **V5-4** — Tradovate order entry from the Position Calculator (the auth route already holds the full accessToken) + TradingView chart embed / webhook receiver.
-- **V5-5** — Rule-based backtester over historical Tradovate bars (EMA crosses, IB breakouts, opening-drive setups) to validate edge before deploying.
+- **V5-4** — Tradovate order entry from the Position Calculator + TradingView chart embed / webhook receiver.
+- **V5-5** — Rule-based backtester over historical Tradovate bars.
 - **V5-6** — Retire remaining synthetic surfaces: real Market Internals (IQFeed), real options feed (SpotGamma / Unusual Whales), real heatmap constituents (Polygon / IEX).
