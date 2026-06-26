@@ -180,7 +180,6 @@ export class MockDataProvider implements DataProvider {
     const tfSec = TIMEFRAME_SECONDS[tf];
     const sigmaPerBar = inst.annualVol * Math.sqrt(tfSec / SECONDS_PER_TRADING_YEAR);
 
-    // Walk back from "now" so the rightmost bar is the live one.
     const now = Date.now();
     const lastTs = Math.floor(now / (tfSec * 1000)) * tfSec * 1000;
     const bars: Candle[] = new Array(count);
@@ -190,12 +189,10 @@ export class MockDataProvider implements DataProvider {
       const open = price;
       const ret = sigmaPerBar * boxMullerNormal(rnd);
       const close = open * Math.exp(ret);
-      // Wicks: independent positive draws scaled to bar vol
       const wickUp = Math.abs(boxMullerNormal(rnd)) * sigmaPerBar * 0.6;
       const wickDn = Math.abs(boxMullerNormal(rnd)) * sigmaPerBar * 0.6;
       const high = Math.max(open, close) * (1 + wickUp);
       const low = Math.min(open, close) * (1 - wickDn);
-      // Volume: heavier on wider-range bars
       const range = high - low;
       const baseVol = 1000 + rnd() * 4000;
       const volume = Math.round(baseVol * (1 + (range / open) * 100));
@@ -271,10 +268,4 @@ export class MockDataProvider implements DataProvider {
     }
     return bars;
   }
-}
-
-let _provider: MockDataProvider | null = null;
-export function getProvider(): MockDataProvider {
-  if (!_provider) _provider = new MockDataProvider();
-  return _provider;
 }

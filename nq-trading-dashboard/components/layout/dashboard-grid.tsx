@@ -13,6 +13,8 @@ import { OvernightSession } from "../widgets/overnight-session";
 import { PositionCalculator } from "../widgets/position-calculator";
 import { SessionStats } from "../widgets/session-stats";
 import { TradingChecklist } from "../widgets/trading-checklist";
+import { VolatilityWidget } from "../widgets/volatility";
+import { VolumeProfileWidget } from "../widgets/volume-profile";
 import { Watchlist } from "../widgets/watchlist";
 
 const ResponsiveGridLayout = dynamic(
@@ -26,57 +28,67 @@ const BREAKPOINTS = { lg: 1400, md: 1100, sm: 800, xs: 540, xxs: 0 };
 const DEFAULT_LAYOUTS: Layouts = {
   lg: [
     { i: "chart",      x: 0, y: 0,  w: 8, h: 20, minW: 6, minH: 16 },
-    { i: "market",     x: 8, y: 0,  w: 4, h: 14, minW: 3, minH: 10 },
-    { i: "mtfTrend",   x: 8, y: 14, w: 4, h: 6,  minW: 3, minH: 5 },
-    { i: "overnight",  x: 0, y: 20, w: 4, h: 12, minW: 3, minH: 8 },
-    { i: "session",    x: 4, y: 20, w: 4, h: 12, minW: 3, minH: 8 },
-    { i: "watchlist",  x: 8, y: 20, w: 4, h: 12, minW: 3, minH: 6 },
-    { i: "calculator", x: 0, y: 32, w: 6, h: 13, minW: 3, minH: 10 },
-    { i: "checklist",  x: 6, y: 32, w: 6, h: 13, minW: 3, minH: 8 },
+    { i: "market",     x: 8, y: 0,  w: 4, h: 12, minW: 3, minH: 10 },
+    { i: "vprofile",   x: 8, y: 12, w: 4, h: 18, minW: 3, minH: 14 },
+    { i: "volatility", x: 0, y: 20, w: 4, h: 10, minW: 3, minH: 8 },
+    { i: "mtfTrend",   x: 4, y: 20, w: 4, h: 10, minW: 3, minH: 7 },
+    { i: "overnight",  x: 0, y: 30, w: 4, h: 12, minW: 3, minH: 8 },
+    { i: "session",    x: 4, y: 30, w: 4, h: 12, minW: 3, minH: 8 },
+    { i: "watchlist",  x: 8, y: 30, w: 4, h: 12, minW: 3, minH: 6 },
+    { i: "calculator", x: 0, y: 42, w: 6, h: 13, minW: 3, minH: 10 },
+    { i: "checklist",  x: 6, y: 42, w: 6, h: 13, minW: 3, minH: 8 },
   ],
   md: [
     { i: "chart",      x: 0, y: 0,  w: 10, h: 20 },
     { i: "market",     x: 0, y: 20, w: 5,  h: 12 },
     { i: "mtfTrend",   x: 5, y: 20, w: 5,  h: 12 },
-    { i: "overnight",  x: 0, y: 32, w: 5,  h: 12 },
-    { i: "session",    x: 5, y: 32, w: 5,  h: 12 },
-    { i: "watchlist",  x: 0, y: 44, w: 5,  h: 12 },
-    { i: "calculator", x: 5, y: 44, w: 5,  h: 13 },
-    { i: "checklist",  x: 0, y: 56, w: 10, h: 10 },
+    { i: "volatility", x: 0, y: 32, w: 5,  h: 10 },
+    { i: "vprofile",   x: 5, y: 32, w: 5,  h: 18 },
+    { i: "overnight",  x: 0, y: 42, w: 5,  h: 12 },
+    { i: "session",    x: 0, y: 54, w: 5,  h: 11 },
+    { i: "watchlist",  x: 5, y: 50, w: 5,  h: 12 },
+    { i: "calculator", x: 0, y: 66, w: 5,  h: 13 },
+    { i: "checklist",  x: 5, y: 62, w: 5,  h: 12 },
   ],
   sm: [
-    { i: "chart",      x: 0, y: 0,  w: 6, h: 22 },
-    { i: "market",     x: 0, y: 22, w: 6, h: 14 },
-    { i: "mtfTrend",   x: 0, y: 36, w: 6, h: 11 },
-    { i: "overnight",  x: 0, y: 47, w: 6, h: 14 },
-    { i: "session",    x: 0, y: 61, w: 6, h: 11 },
-    { i: "watchlist",  x: 0, y: 72, w: 6, h: 12 },
-    { i: "calculator", x: 0, y: 84, w: 6, h: 13 },
-    { i: "checklist",  x: 0, y: 97, w: 6, h: 12 },
+    { i: "chart",      x: 0, y: 0,   w: 6, h: 22 },
+    { i: "market",     x: 0, y: 22,  w: 6, h: 14 },
+    { i: "vprofile",   x: 0, y: 36,  w: 6, h: 20 },
+    { i: "volatility", x: 0, y: 56,  w: 6, h: 11 },
+    { i: "mtfTrend",   x: 0, y: 67,  w: 6, h: 11 },
+    { i: "overnight",  x: 0, y: 78,  w: 6, h: 14 },
+    { i: "session",    x: 0, y: 92,  w: 6, h: 11 },
+    { i: "watchlist",  x: 0, y: 103, w: 6, h: 12 },
+    { i: "calculator", x: 0, y: 115, w: 6, h: 13 },
+    { i: "checklist",  x: 0, y: 128, w: 6, h: 12 },
   ],
   xs: [
     { i: "chart",      x: 0, y: 0,   w: 4, h: 22 },
     { i: "market",     x: 0, y: 22,  w: 4, h: 16 },
-    { i: "mtfTrend",   x: 0, y: 38,  w: 4, h: 11 },
-    { i: "overnight",  x: 0, y: 49,  w: 4, h: 16 },
-    { i: "session",    x: 0, y: 65,  w: 4, h: 12 },
-    { i: "watchlist",  x: 0, y: 77,  w: 4, h: 12 },
-    { i: "calculator", x: 0, y: 89,  w: 4, h: 14 },
-    { i: "checklist",  x: 0, y: 103, w: 4, h: 12 },
+    { i: "vprofile",   x: 0, y: 38,  w: 4, h: 22 },
+    { i: "volatility", x: 0, y: 60,  w: 4, h: 12 },
+    { i: "mtfTrend",   x: 0, y: 72,  w: 4, h: 11 },
+    { i: "overnight",  x: 0, y: 83,  w: 4, h: 16 },
+    { i: "session",    x: 0, y: 99,  w: 4, h: 12 },
+    { i: "watchlist",  x: 0, y: 111, w: 4, h: 12 },
+    { i: "calculator", x: 0, y: 123, w: 4, h: 14 },
+    { i: "checklist",  x: 0, y: 137, w: 4, h: 12 },
   ],
   xxs: [
     { i: "chart",      x: 0, y: 0,   w: 2, h: 24 },
     { i: "market",     x: 0, y: 24,  w: 2, h: 18 },
-    { i: "mtfTrend",   x: 0, y: 42,  w: 2, h: 12 },
-    { i: "overnight",  x: 0, y: 54,  w: 2, h: 18 },
-    { i: "session",    x: 0, y: 72,  w: 2, h: 13 },
-    { i: "watchlist",  x: 0, y: 85,  w: 2, h: 13 },
-    { i: "calculator", x: 0, y: 98,  w: 2, h: 15 },
-    { i: "checklist",  x: 0, y: 113, w: 2, h: 13 },
+    { i: "vprofile",   x: 0, y: 42,  w: 2, h: 24 },
+    { i: "volatility", x: 0, y: 66,  w: 2, h: 13 },
+    { i: "mtfTrend",   x: 0, y: 79,  w: 2, h: 12 },
+    { i: "overnight",  x: 0, y: 91,  w: 2, h: 18 },
+    { i: "session",    x: 0, y: 109, w: 2, h: 13 },
+    { i: "watchlist",  x: 0, y: 122, w: 2, h: 13 },
+    { i: "calculator", x: 0, y: 135, w: 2, h: 15 },
+    { i: "checklist",  x: 0, y: 150, w: 2, h: 13 },
   ],
 };
 
-const LAYOUT_KEY = "nqdesk.layout.v2";
+const LAYOUT_KEY = "nqdesk.layout.v3";
 
 export function DashboardGrid() {
   const [layouts, setLayouts] = useState<Layouts>(DEFAULT_LAYOUTS);
@@ -124,6 +136,8 @@ export function DashboardGrid() {
     >
       <div key="chart"><DragHandle /><ChartWidget /></div>
       <div key="market"><DragHandle /><MarketOverview /></div>
+      <div key="vprofile"><DragHandle /><VolumeProfileWidget /></div>
+      <div key="volatility"><DragHandle /><VolatilityWidget /></div>
       <div key="mtfTrend"><DragHandle /><MultiTimeframeTrend /></div>
       <div key="overnight"><DragHandle /><OvernightSession /></div>
       <div key="session"><DragHandle /><SessionStats /></div>

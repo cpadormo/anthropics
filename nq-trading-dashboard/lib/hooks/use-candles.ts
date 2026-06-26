@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getProvider } from "../data/mock-feed";
+import { getProvider } from "../data/provider-factory";
 import type { Candle, Timeframe } from "../types";
 
 export function useCandles(

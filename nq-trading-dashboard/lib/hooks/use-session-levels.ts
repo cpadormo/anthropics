@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getProvider } from "../data/mock-feed";
+import { getProvider } from "../data/provider-factory";
 import type { RthSessionStats, SessionLevels } from "../types";
 
 export function useSessionLevels(symbol: string): SessionLevels | null {

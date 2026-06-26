@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getProvider } from "../data/mock-feed";
+import { getProvider } from "../data/provider-factory";
 import type { Quote } from "../types";
 
 export function useQuote(symbol: string): Quote | null {
@@ -21,7 +21,6 @@ export function useQuotes(symbols: string[]): Record<string, Quote | null> {
     return obj;
   });
 
-  // Re-subscribe only when the *contents* of the symbols list change.
   const key = symbols.join(",");
   useEffect(() => {
     const provider = getProvider();
