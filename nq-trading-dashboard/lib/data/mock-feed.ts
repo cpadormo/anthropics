@@ -7,7 +7,7 @@ import type {
   Timeframe,
 } from "../types";
 import { TIMEFRAME_SECONDS } from "../types";
-import type { DataProvider, Unsubscribe } from "./provider";
+import type { DataProvider, ProviderStatus, Unsubscribe } from "./provider";
 
 // Deterministic-seeded geometric Brownian motion per instrument.
 // Same calendar day + same symbol => same opening series, so refreshes
@@ -52,7 +52,6 @@ interface State {
 
 const TICK_MS = 750;
 const SERIES_LEN = 60;
-// Futures trade ~23h/day; use this for per-bar vol scaling so 1m, 5m, 1H bars feel right.
 const SECONDS_PER_TRADING_YEAR = 252 * 23 * 3600;
 
 export class MockDataProvider implements DataProvider {
@@ -267,5 +266,9 @@ export class MockDataProvider implements DataProvider {
       this.candleCache.set(key, bars);
     }
     return bars;
+  }
+
+  status(): ProviderStatus {
+    return { name: "mock", state: "ok" };
   }
 }

@@ -81,7 +81,6 @@ export function macd(values: number[], fast = 12, slow = 26, signal = 9): MacdRe
     const s = slowE[i];
     return f != null && s != null ? f - s : null;
   });
-  // Signal is EMA of macd line over the region where macd is defined.
   const firstIdx = macdLine.findIndex((v) => v != null);
   const signalLine: (number | null)[] = new Array(values.length).fill(null);
   if (firstIdx >= 0) {
@@ -117,14 +116,12 @@ export function atr(candles: Candle[], period = 14): (number | null)[] {
 
 export interface TrendSignal {
   direction: "bull" | "bear" | "neutral";
-  strength: number; // 0..1
+  strength: number;
   fast: number;
   slow: number;
-  spread: number; // (fast - slow) / slow
+  spread: number;
 }
 
-// Classification from fast/slow EMA spread. Thresholds are deliberately
-// small to surface persistent regimes without flickering on noise.
 export function trendFromEMA(
   values: number[],
   fast = 20,
@@ -144,4 +141,126 @@ export function trendFromEMA(
     spread > neutralBand ? "bull" : spread < -neutralBand ? "bear" : "neutral";
   const strength = Math.min(1, Math.abs(spread) / fullScale);
   return { direction, strength, fast: fv, slow: sv, spread };
+}
+
+export interface SupertrendPoint {
+  value: number;
+  direction: "up" | "down";
+}
+
+// Supertrend: ATR-banded trailing stop with a persistent direction flag.
+// Standard reference: basic upper / lower bands clamped against the
+// previous final bands when price hasn't broken them, then flip on close.
+export function supertrend(
+  candles: Candle[],
+  period = 10,
+  multiplier = 3,
+): (SupertrendPoint | null)[] {
+  const len = candles.length;
+  const out: (SupertrendPoint | null)[] = new Array(len).fill(null);
+  if (len < period + 1) return out;
+  const atrArr = atr(candles, period);
+  let finalUpper = 0;
+  let finalLower = 0;
+  let direction: "up" | "down" = "up";
+
+  for (let i = 0; i < len; i++) {
+    const a = atrArr[i];
+    if (a == null) continue;
+    const c = candles[i];
+    const hl2 = (c.high + c.low) / 2;
+    const basicUpper = hl2 + multiplier * a;
+    const basicLower = hl2 - multiplier * a;
+
+    if (out[i - 1] == null) {
+      finalUpper = basicUpper;
+      finalLower = basicLower;
+      direction = c.close <= basicUpper ? "down" : "up";
+      out[i] = { value: direction === "down" ? finalUpper : finalLower, direction };
+      continue;
+    }
+
+    const prevClose = candles[i - 1].close;
+    finalUpper =
+      basicUpper < finalUpper || prevClose > finalUpper ? basicUpper : finalUpper;
+    finalLower =
+      basicLower > finalLower || prevClose < finalLower ? basicLower : finalLower;
+
+    if (direction === "down") {
+      direction = c.close > finalUpper ? "up" : "down";
+    } else {
+      direction = c.close < finalLower ? "down" : "up";
+    }
+    out[i] = { value: direction === "up" ? finalLower : finalUpper, direction };
+  }
+  return out;
+}
+
+export interface AdxResult {
+  adx: (number | null)[];
+  pdi: (number | null)[];
+  mdi: (number | null)[];
+}
+
+// Wilder ADX, +DI, -DI. Standard 14-period defaults.
+export function adx(candles: Candle[], period = 14): AdxResult {
+  const len = candles.length;
+  const out: AdxResult = {
+    adx: new Array(len).fill(null),
+    pdi: new Array(len).fill(null),
+    mdi: new Array(len).fill(null),
+  };
+  if (len < period * 2) return out;
+
+  const tr: number[] = new Array(len).fill(0);
+  const plusDM: number[] = new Array(len).fill(0);
+  const minusDM: number[] = new Array(len).fill(0);
+  tr[0] = candles[0].high - candles[0].low;
+  for (let i = 1; i < len; i++) {
+    const c = candles[i];
+    const p = candles[i - 1];
+    tr[i] = Math.max(c.high - c.low, Math.abs(c.high - p.close), Math.abs(c.low - p.close));
+    const upMove = c.high - p.high;
+    const downMove = p.low - c.low;
+    plusDM[i] = upMove > downMove && upMove > 0 ? upMove : 0;
+    minusDM[i] = downMove > upMove && downMove > 0 ? downMove : 0;
+  }
+
+  // Wilder smoothing of TR, +DM, -DM
+  let smTR = 0;
+  let smPlus = 0;
+  let smMinus = 0;
+  for (let i = 1; i <= period; i++) {
+    smTR += tr[i];
+    smPlus += plusDM[i];
+    smMinus += minusDM[i];
+  }
+
+  const dx: (number | null)[] = new Array(len).fill(null);
+  for (let i = period; i < len; i++) {
+    if (i > period) {
+      smTR = smTR - smTR / period + tr[i];
+      smPlus = smPlus - smPlus / period + plusDM[i];
+      smMinus = smMinus - smMinus / period + minusDM[i];
+    }
+    const pdi = smTR > 0 ? (smPlus / smTR) * 100 : 0;
+    const mdi = smTR > 0 ? (smMinus / smTR) * 100 : 0;
+    out.pdi[i] = pdi;
+    out.mdi[i] = mdi;
+    dx[i] = pdi + mdi > 0 ? (Math.abs(pdi - mdi) / (pdi + mdi)) * 100 : 0;
+  }
+
+  // ADX = Wilder smoothing of DX over `period`
+  const firstDxIdx = period;
+  const adxStart = firstDxIdx + period - 1;
+  if (adxStart >= len) return out;
+  let adxVal = 0;
+  for (let i = firstDxIdx; i < firstDxIdx + period; i++) adxVal += dx[i] as number;
+  adxVal /= period;
+  out.adx[adxStart] = adxVal;
+  for (let i = adxStart + 1; i < len; i++) {
+    adxVal = (adxVal * (period - 1) + (dx[i] as number)) / period;
+    out.adx[i] = adxVal;
+  }
+  return out;
 }

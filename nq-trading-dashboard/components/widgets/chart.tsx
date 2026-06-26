@@ -14,13 +14,13 @@ import {
 import { GlassCard } from "../ui/glass-card";
 import { TimeframePicker } from "../ui/timeframe-picker";
 import { useCandles } from "@/lib/hooks/use-candles";
-import { ema, macd, rsi, vwap } from "@/lib/indicators";
+import { adx, ema, macd, rsi, supertrend, vwap } from "@/lib/indicators";
 import { INSTRUMENTS } from "@/lib/instruments";
 import type { Timeframe } from "@/lib/types";
 import { cn, fmtPrice } from "@/lib/utils";
 
 const SYMBOLS = ["NQ", "ES", "RTY", "YM"];
-const SUB_OPTIONS = ["RSI", "MACD"] as const;
+const SUB_OPTIONS = ["RSI", "MACD", "ADX"] as const;
 type Sub = (typeof SUB_OPTIONS)[number];
 
 const EMA_DEFS = [
@@ -40,6 +40,7 @@ export function ChartWidget() {
     ema50: true,
     ema100: false,
     ema200: false,
+    supertrend: false,
   });
 
   const inst = INSTRUMENTS[symbol];
@@ -55,27 +56,37 @@ export function ChartWidget() {
     const e200 = ema(closes, 200);
     const rsiArr = rsi(closes, 14);
     const macdRes = macd(closes);
-    return candles.map((c, i) => ({
-      i,
-      ts: c.ts,
-      open: c.open,
-      high: c.high,
-      low: c.low,
-      close: c.close,
-      volume: c.volume,
-      isUp: c.close >= c.open,
-      wick: [c.low, c.high] as [number, number],
-      body: [c.open, c.close] as [number, number],
-      vwap: vwapArr[i],
-      ema20: e20[i],
-      ema50: e50[i],
-      ema100: e100[i],
-      ema200: e200[i],
-      rsi: rsiArr[i],
-      macd: macdRes.macd[i],
-      signal: macdRes.signal[i],
-      hist: macdRes.hist[i],
-    }));
+    const st = supertrend(candles, 10, 3);
+    const adxRes = adx(candles, 14);
+    return candles.map((c, i) => {
+      const stPt = st[i];
+      return {
+        i,
+        ts: c.ts,
+        open: c.open,
+        high: c.high,
+        low: c.low,
+        close: c.close,
+        volume: c.volume,
+        isUp: c.close >= c.open,
+        wick: [c.low, c.high] as [number, number],
+        body: [c.open, c.close] as [number, number],
+        vwap: vwapArr[i],
+        ema20: e20[i],
+        ema50: e50[i],
+        ema100: e100[i],
+        ema200: e200[i],
+        rsi: rsiArr[i],
+        macd: macdRes.macd[i],
+        signal: macdRes.signal[i],
+        hist: macdRes.hist[i],
+        stUp: stPt && stPt.direction === "up" ? stPt.value : null,
+        stDown: stPt && stPt.direction === "down" ? stPt.value : null,
+        adx: adxRes.adx[i],
+        pdi: adxRes.pdi[i],
+        mdi: adxRes.mdi[i],
+      };
+    });
   }, [candles]);
 
   const dec = inst.priceDecimals;
@@ -159,6 +170,30 @@ export function ChartWidget() {
                   />
                 ) : null,
               )}
+              {overlays.supertrend && (
+                <>
+                  <Line
+                    type="stepAfter"
+                    dataKey="stUp"
+                    stroke="#22c55e"
+                    strokeWidth={1.5}
+                    dot={false}
+                    connectNulls={false}
+                    isAnimationActive={false}
+                    name="Supertrend (long)"
+                  />
+                  <Line
+                    type="stepAfter"
+                    dataKey="stDown"
+                    stroke="#ef4444"
+                    strokeWidth={1.5}
+                    dot={false}
+                    connectNulls={false}
+                    isAnimationActive={false}
+                    name="Supertrend (short)"
+                  />
+                </>
+              )}
             </ComposedChart>
           </ResponsiveContainer>
         </div>
@@ -170,9 +205,11 @@ export function ChartWidget() {
               <YAxis
                 orientation="right"
                 tick={{ fill: "#5e6a7c", fontSize: 10 }}
-                domain={sub === "RSI" ? [0, 100] : ["auto", "auto"]}
+                domain={subDomain(sub)}
                 width={60}
-                tickFormatter={(v) => (sub === "RSI" ? Number(v).toFixed(0) : Number(v).toFixed(2))}
+                tickFormatter={(v) =>
+                  sub === "MACD" ? Number(v).toFixed(2) : Number(v).toFixed(0)
+                }
               />
               <Tooltip
                 contentStyle={tooltipStyle}
@@ -181,7 +218,7 @@ export function ChartWidget() {
                   typeof value === "number" ? value.toFixed(2) : String(value)
                 }
               />
-              {sub === "RSI" ? (
+              {sub === "RSI" && (
                 <>
                   <ReferenceLine y={70} stroke="rgba(239,68,68,0.4)" strokeDasharray="2 2" />
                   <ReferenceLine y={50} stroke="rgba(255,255,255,0.08)" />
@@ -196,7 +233,8 @@ export function ChartWidget() {
                     name="RSI(14)"
                   />
                 </>
-              ) : (
+              )}
+              {sub === "MACD" && (
                 <>
                   <ReferenceLine y={0} stroke="rgba(255,255,255,0.08)" />
                   <Bar
@@ -225,12 +263,51 @@ export function ChartWidget() {
                   />
                 </>
               )}
+              {sub === "ADX" && (
+                <>
+                  <ReferenceLine y={20} stroke="rgba(255,255,255,0.10)" strokeDasharray="2 2" />
+                  <ReferenceLine y={40} stroke="rgba(245,158,11,0.35)" strokeDasharray="2 2" />
+                  <Line
+                    type="monotone"
+                    dataKey="adx"
+                    stroke="#e6edf6"
+                    strokeWidth={1.25}
+                    dot={false}
+                    isAnimationActive={false}
+                    name="ADX(14)"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="pdi"
+                    stroke="#22c55e"
+                    strokeWidth={1}
+                    dot={false}
+                    isAnimationActive={false}
+                    name="+DI"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="mdi"
+                    stroke="#ef4444"
+                    strokeWidth={1}
+                    dot={false}
+                    isAnimationActive={false}
+                    name="-DI"
+                  />
+                </>
+              )}
             </ComposedChart>
           </ResponsiveContainer>
         </div>
       </div>
     </GlassCard>
   );
+}
+
+function subDomain(sub: Sub): [number | string, number | string] {
+  if (sub === "RSI") return [0, 100];
+  if (sub === "ADX") return [0, 60];
+  return ["auto", "auto"];
 }
 
 const tooltipStyle = {
@@ -250,9 +327,6 @@ function priceTooltipFormatter(dec: number) {
     return [String(value), name];
   };
 }
-
-// Recharts range-Bar shapes receive x/y/width/height of the bar's bbox.
-// We rely on that mapping to draw wicks (thin centered line) and bodies (rect).
 
 interface ShapeProps {
   x?: number;
@@ -324,13 +398,16 @@ function OverlayToggle({
   const toggle = (k: string) => setOverlays({ ...overlays, [k]: !overlays[k] });
   return (
     <div className="flex items-center justify-between gap-2 flex-wrap text-2xs">
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 flex-wrap">
         <Pill on={overlays.vwap} color="#e6edf6" onClick={() => toggle("vwap")}>VWAP</Pill>
         {EMA_DEFS.map((e) => (
           <Pill key={e.k} on={overlays[e.k]} color={e.color} onClick={() => toggle(e.k)}>
             {e.label}
           </Pill>
         ))}
+        <Pill on={overlays.supertrend} color="#22c55e" onClick={() => toggle("supertrend")}>
+          Supertrend
+        </Pill>
       </div>
       <div className="flex gap-0.5 rounded-md bg-white/[0.04] p-0.5">
         {SUB_OPTIONS.map((o) => (

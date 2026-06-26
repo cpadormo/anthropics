@@ -7,6 +7,7 @@ import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
 import { ChartWidget } from "../widgets/chart";
+import { MarketInternals } from "../widgets/market-internals";
 import { MarketOverview } from "../widgets/market-overview";
 import { MultiTimeframeTrend } from "../widgets/mtf-trend";
 import { OvernightSession } from "../widgets/overnight-session";
@@ -32,63 +33,68 @@ const DEFAULT_LAYOUTS: Layouts = {
     { i: "vprofile",   x: 8, y: 12, w: 4, h: 18, minW: 3, minH: 14 },
     { i: "volatility", x: 0, y: 20, w: 4, h: 10, minW: 3, minH: 8 },
     { i: "mtfTrend",   x: 4, y: 20, w: 4, h: 10, minW: 3, minH: 7 },
-    { i: "overnight",  x: 0, y: 30, w: 4, h: 12, minW: 3, minH: 8 },
-    { i: "session",    x: 4, y: 30, w: 4, h: 12, minW: 3, minH: 8 },
-    { i: "watchlist",  x: 8, y: 30, w: 4, h: 12, minW: 3, minH: 6 },
-    { i: "calculator", x: 0, y: 42, w: 6, h: 13, minW: 3, minH: 10 },
-    { i: "checklist",  x: 6, y: 42, w: 6, h: 13, minW: 3, minH: 8 },
+    { i: "internals",  x: 0, y: 30, w: 4, h: 13, minW: 3, minH: 10 },
+    { i: "overnight",  x: 4, y: 30, w: 4, h: 13, minW: 3, minH: 8 },
+    { i: "session",    x: 8, y: 30, w: 4, h: 12, minW: 3, minH: 8 },
+    { i: "watchlist",  x: 0, y: 43, w: 8, h: 11, minW: 4, minH: 6 },
+    { i: "calculator", x: 8, y: 43, w: 4, h: 13, minW: 3, minH: 10 },
+    { i: "checklist",  x: 0, y: 54, w: 12, h: 11, minW: 3, minH: 8 },
   ],
   md: [
     { i: "chart",      x: 0, y: 0,  w: 10, h: 20 },
     { i: "market",     x: 0, y: 20, w: 5,  h: 12 },
     { i: "mtfTrend",   x: 5, y: 20, w: 5,  h: 12 },
     { i: "volatility", x: 0, y: 32, w: 5,  h: 10 },
-    { i: "vprofile",   x: 5, y: 32, w: 5,  h: 18 },
-    { i: "overnight",  x: 0, y: 42, w: 5,  h: 12 },
-    { i: "session",    x: 0, y: 54, w: 5,  h: 11 },
-    { i: "watchlist",  x: 5, y: 50, w: 5,  h: 12 },
-    { i: "calculator", x: 0, y: 66, w: 5,  h: 13 },
-    { i: "checklist",  x: 5, y: 62, w: 5,  h: 12 },
+    { i: "internals",  x: 5, y: 32, w: 5,  h: 13 },
+    { i: "vprofile",   x: 0, y: 42, w: 5,  h: 18 },
+    { i: "overnight",  x: 5, y: 45, w: 5,  h: 12 },
+    { i: "session",    x: 0, y: 60, w: 5,  h: 11 },
+    { i: "watchlist",  x: 5, y: 57, w: 5,  h: 12 },
+    { i: "calculator", x: 0, y: 71, w: 5,  h: 13 },
+    { i: "checklist",  x: 5, y: 69, w: 5,  h: 12 },
   ],
   sm: [
     { i: "chart",      x: 0, y: 0,   w: 6, h: 22 },
     { i: "market",     x: 0, y: 22,  w: 6, h: 14 },
-    { i: "vprofile",   x: 0, y: 36,  w: 6, h: 20 },
-    { i: "volatility", x: 0, y: 56,  w: 6, h: 11 },
-    { i: "mtfTrend",   x: 0, y: 67,  w: 6, h: 11 },
-    { i: "overnight",  x: 0, y: 78,  w: 6, h: 14 },
-    { i: "session",    x: 0, y: 92,  w: 6, h: 11 },
-    { i: "watchlist",  x: 0, y: 103, w: 6, h: 12 },
-    { i: "calculator", x: 0, y: 115, w: 6, h: 13 },
-    { i: "checklist",  x: 0, y: 128, w: 6, h: 12 },
+    { i: "internals",  x: 0, y: 36,  w: 6, h: 13 },
+    { i: "vprofile",   x: 0, y: 49,  w: 6, h: 20 },
+    { i: "volatility", x: 0, y: 69,  w: 6, h: 11 },
+    { i: "mtfTrend",   x: 0, y: 80,  w: 6, h: 11 },
+    { i: "overnight",  x: 0, y: 91,  w: 6, h: 14 },
+    { i: "session",    x: 0, y: 105, w: 6, h: 11 },
+    { i: "watchlist",  x: 0, y: 116, w: 6, h: 12 },
+    { i: "calculator", x: 0, y: 128, w: 6, h: 13 },
+    { i: "checklist",  x: 0, y: 141, w: 6, h: 12 },
   ],
   xs: [
     { i: "chart",      x: 0, y: 0,   w: 4, h: 22 },
     { i: "market",     x: 0, y: 22,  w: 4, h: 16 },
-    { i: "vprofile",   x: 0, y: 38,  w: 4, h: 22 },
-    { i: "volatility", x: 0, y: 60,  w: 4, h: 12 },
-    { i: "mtfTrend",   x: 0, y: 72,  w: 4, h: 11 },
-    { i: "overnight",  x: 0, y: 83,  w: 4, h: 16 },
-    { i: "session",    x: 0, y: 99,  w: 4, h: 12 },
-    { i: "watchlist",  x: 0, y: 111, w: 4, h: 12 },
-    { i: "calculator", x: 0, y: 123, w: 4, h: 14 },
-    { i: "checklist",  x: 0, y: 137, w: 4, h: 12 },
+    { i: "internals",  x: 0, y: 38,  w: 4, h: 14 },
+    { i: "vprofile",   x: 0, y: 52,  w: 4, h: 22 },
+    { i: "volatility", x: 0, y: 74,  w: 4, h: 12 },
+    { i: "mtfTrend",   x: 0, y: 86,  w: 4, h: 11 },
+    { i: "overnight",  x: 0, y: 97,  w: 4, h: 16 },
+    { i: "session",    x: 0, y: 113, w: 4, h: 12 },
+    { i: "watchlist",  x: 0, y: 125, w: 4, h: 12 },
+    { i: "calculator", x: 0, y: 137, w: 4, h: 14 },
+    { i: "checklist",  x: 0, y: 151, w: 4, h: 12 },
   ],
   xxs: [
     { i: "chart",      x: 0, y: 0,   w: 2, h: 24 },
     { i: "market",     x: 0, y: 24,  w: 2, h: 18 },
-    { i: "vprofile",   x: 0, y: 42,  w: 2, h: 24 },
-    { i: "volatility", x: 0, y: 66,  w: 2, h: 13 },
-    { i: "mtfTrend",   x: 0, y: 79,  w: 2, h: 12 },
-    { i: "overnight",  x: 0, y: 91,  w: 2, h: 18 },
-    { i: "session",    x: 0, y: 109, w: 2, h: 13 },
-    { i: "watchlist",  x: 0, y: 122, w: 2, h: 13 },
-    { i: "calculator", x: 0, y: 135, w: 2, h: 15 },
-    { i: "checklist",  x: 0, y: 150, w: 2, h: 13 },
+    { i: "internals",  x: 0, y: 42,  w: 2, h: 15 },
+    { i: "vprofile",   x: 0, y: 57,  w: 2, h: 24 },
+    { i: "volatility", x: 0, y: 81,  w: 2, h: 13 },
+    { i: "mtfTrend",   x: 0, y: 94,  w: 2, h: 12 },
+    { i: "overnight",  x: 0, y: 106, w: 2, h: 18 },
+    { i: "session",    x: 0, y: 124, w: 2, h: 13 },
+    { i: "watchlist",  x: 0, y: 137, w: 2, h: 13 },
+    { i: "calculator", x: 0, y: 150, w: 2, h: 15 },
+    { i: "checklist",  x: 0, y: 165, w: 2, h: 13 },
   ],
 };
 
-const LAYOUT_KEY = "nqdesk.layout.v3";
+const LAYOUT_KEY = "nqdesk.layout.v4";
 
 export function DashboardGrid() {
   const [layouts, setLayouts] = useState<Layouts>(DEFAULT_LAYOUTS);
@@ -139,6 +145,7 @@ export function DashboardGrid() {
       <div key="vprofile"><DragHandle /><VolumeProfileWidget /></div>
       <div key="volatility"><DragHandle /><VolatilityWidget /></div>
       <div key="mtfTrend"><DragHandle /><MultiTimeframeTrend /></div>
+      <div key="internals"><DragHandle /><MarketInternals /></div>
       <div key="overnight"><DragHandle /><OvernightSession /></div>
       <div key="session"><DragHandle /><SessionStats /></div>
       <div key="watchlist"><DragHandle /><Watchlist /></div>

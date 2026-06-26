@@ -7,14 +7,10 @@ import type {
   Timeframe,
 } from "../types";
 import { MockDataProvider } from "./mock-feed";
-import type { DataProvider, Unsubscribe } from "./provider";
+import type { DataProvider, ProviderStatus, Unsubscribe } from "./provider";
 import { frontMonth } from "./symbols";
 import { TradovateClient } from "./tradovate-client";
 
-// V2B-1 coverage: Tradovate streams live quotes for CME futures listed below.
-// Non-CME instruments (VIX, DXY, US10Y, GC, CL, BTC, ETH), session levels,
-// RTH stats, and historical candles fall through to MockDataProvider with
-// TODO markers for V2B-2 (md/getChart for candles, derived stats from bars).
 const TRADOVATE_ROOTS = new Set(["NQ", "ES", "RTY", "YM"]);
 const SERIES_LEN = 60;
 
@@ -24,22 +20,33 @@ export class TradovateProvider implements DataProvider {
   private series = new Map<string, number[]>();
   private prevClose = new Map<string, number>();
   private rootToContract = new Map<string, string>();
+  private _status: ProviderStatus = { name: "tradovate", state: "connecting" };
+  private statusListeners = new Set<(s: ProviderStatus) => void>();
   private authError = false;
 
   constructor() {
     this.client = new TradovateClient();
     this.fallback = new MockDataProvider();
     if (typeof window !== "undefined") {
-      this.client.connect().catch((err) => {
-        this.authError = true;
-        // Don't crash the UI — mock keeps everything alive while the operator fixes config.
-        // eslint-disable-next-line no-console
-        console.error(
-          "[Tradovate] connect failed; dashboard running on mock feed:",
-          err,
-        );
-      });
+      this.client
+        .connect()
+        .then(() => this.setStatus({ name: "tradovate", state: "ok" }))
+        .catch((err) => {
+          this.authError = true;
+          const detail = err instanceof Error ? err.message : String(err);
+          this.setStatus({ name: "tradovate", state: "error", detail });
+          // eslint-disable-next-line no-console
+          console.error(
+            "[Tradovate] connect failed; dashboard running on mock feed:",
+            err,
+          );
+        });
     }
+  }
+
+  private setStatus(s: ProviderStatus) {
+    this._status = s;
+    for (const cb of this.statusListeners) cb(s);
   }
 
   private contractFor(root: string): string {
@@ -103,19 +110,31 @@ export class TradovateProvider implements DataProvider {
     };
   }
 
-  // TODO V2B-2: derive from Tradovate historical bars (md/getChart).
+  // TODO V2B-3: derive from Tradovate historical bars.
   sessionLevels(symbol: string): SessionLevels | null {
     return this.fallback.sessionLevels(symbol);
   }
 
-  // TODO V2B-2: derive from Tradovate historical bars (md/getChart).
+  // TODO V2B-3: derive from Tradovate historical bars.
   rthStats(symbol: string): RthSessionStats | null {
     return this.fallback.rthStats(symbol);
   }
 
-  // TODO V2B-2: implement md/getChart subscription with proper aggregation.
+  // TODO V2B-3: implement md/getChart subscription.
   candles(symbol: string, timeframe: Timeframe, count = 200): Candle[] | null {
     if (!INSTRUMENTS[symbol]) return null;
     return this.fallback.candles(symbol, timeframe, count);
+  }
+
+  status(): ProviderStatus {
+    return this._status;
+  }
+
+  onStatusChange(cb: (s: ProviderStatus) => void): Unsubscribe {
+    this.statusListeners.add(cb);
+    queueMicrotask(() => cb(this._status));
+    return () => {
+      this.statusListeners.delete(cb);
+    };
   }
 }
