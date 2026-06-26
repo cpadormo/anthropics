@@ -2,7 +2,7 @@
 
 Professional discretionary trading cockpit, optimized for Nasdaq-100 E-mini and Micro E-mini futures (NQ / MNQ).
 
-> **Status: V5-2** — Supabase + Prisma sync wired for the trading journal and dashboard layout. Storage now upgrades automatically: localStorage when no DB is configured, Postgres when `DATABASE_URL` is set. Widgets are unchanged.
+> **Status: V5-5** — 23 widgets live. Backtester closes out the V5 plan apart from V5-6 (retire remaining synthetic feeds). The dashboard now runs offline with localStorage, sync-upgrades to Supabase when a DB is configured, streams live Tradovate quotes + candles + orders, generates AI summaries, fires alerts to browser / Discord / SMS, and backtests strategies over historical bars.
 
 ## Quick start
 
@@ -12,65 +12,60 @@ npm run dev
 # open http://localhost:3000
 ```
 
-No API keys required to run. Top bar shows the data feed; widgets display "demo" / "local" pills where data is synthetic or stored client-side.
+No API keys required. The dashboard ships with sensible mock data for every external surface so you can build the layout and learn the keys before wiring real providers.
 
-## Enable Supabase / Postgres sync (V5-2)
+## Enable real data, surface by surface
 
-1. Create a Supabase project (or point at any Postgres database).
-2. Add the connection string to `.env.local`:
-   ```bash
-   DATABASE_URL=postgresql://postgres:password@db.<project>.supabase.co:5432/postgres
-   ```
-3. Generate the Prisma client and push the schema (one-time):
-   ```bash
-   npm run db:generate
-   npm run db:push
-   ```
-4. Restart `npm run dev`. The Trading Journal and the dashboard layout will sync to Postgres instead of localStorage automatically.
+| Surface | Env to set |
+| --- | --- |
+| Live CME quotes + historical candles + order entry | `NEXT_PUBLIC_DATA_PROVIDER=tradovate` + `TRADOVATE_USERNAME / PASSWORD / CID / SECRET` |
+| Economic Calendar + News Feed | `FINNHUB_API_KEY` |
+| AI Market Summary | `ANTHROPIC_API_KEY` (default model `claude-sonnet-4-6`, override via `ANTHROPIC_MODEL`) |
+| Journal + layout sync | `DATABASE_URL` (Supabase / any Postgres), then `npm run db:generate && npm run db:push` |
+| Alert channels | `DISCORD_WEBHOOK_URL` and / or `TWILIO_ACCOUNT_SID / AUTH_TOKEN / FROM_NUMBER / TO_NUMBER` |
+| TradingView alert webhook | `TRADINGVIEW_WEBHOOK_SECRET` (validated on POST to `/api/tradingview/webhook?secret=...`) |
 
-**How it works.** `/api/health` reports which providers are configured; the client probes once on mount and routes journal CRUD + layout reads/writes accordingly. If `DATABASE_URL` is set but Prisma hasn't been generated, the routes return 503 and the client falls back to localStorage with no UX change.
+## Complete widget set (23)
 
-**Security note.** V5-2 uses a single hardcoded `userId="local"` for now — it's a single-user, single-device dashboard. V5-3+ will wire Supabase Auth for multi-user / multi-device.
+| Widget | Purpose |
+| --- | --- |
+| Chart | Candlesticks + VWAP + EMA 20/50/100/200 + Supertrend + RSI / MACD / ADX sub-panel |
+| TradingView | External advanced-chart embed (NQ / ES / RTY / YM, free, no account required) |
+| AI Market Summary | Claude-generated bias / levels / scenarios / risks / patience (1m cadence) |
+| AI Insights | Heuristic pattern + regime detection (no LLM cost) |
+| Correlation Dashboard | 10×10 cross-asset correlation matrix |
+| Heatmaps | Sectors / Mag 7 / Semis |
+| Multi-Timeframe Trend | 4 symbols × 6 timeframes |
+| Market Overview | 11 instruments — price, daily %, change, sparkline |
+| Market Internals | TICK / TRIN / A-D / ADD / Put-Call / Risk Regime gauge |
+| Overnight & Key Levels | Asia/London/Overnight + PDH/PDL/PDC + PWH/PWL + PMH/PML + gap |
+| Session Statistics | RTH high/low, range vs avg, IB high/low, breakout state, momentum |
+| Volatility | VIX, VVIX, ATR(14, D), 20-day realized vol, range vs ATR%, 1D expected move |
+| Volume Profile | 40-bin profile, POC, 70% value area (VAH / VAL) |
+| Economic Calendar | High + medium impact events, sticky countdown to next print |
+| News Feed | Filtered, categorized headlines |
+| Options | GEX / Max Pain / dealer pos / expected move / largest OI strikes |
+| Alerts | Price triggers with browser / Discord / SMS delivery |
+| Watchlist | Sortable, per-row notes, persists locally |
+| Position Size Calculator | Fixed-fractional risk + Tradovate order entry (Buy / Sell / Market / Limit / Stop) |
+| Trading Journal | Log + edit trades; R-multiple + dollar PnL; syncs to Postgres if configured |
+| Performance Analytics | Live: win rate, profit factor, expectancy, equity curve, R distribution |
+| Backtester | EMA Cross + RSI Mean Reversion strategies over historical bars; same stats path as live analytics |
+| Pre-Trade Checklist | 7-item discipline gate |
 
-## Enable other providers
+## V5-5 architecture
 
-```bash
-# Tradovate — live CME quotes + historical candles
-NEXT_PUBLIC_DATA_PROVIDER=tradovate
-TRADOVATE_USERNAME=...
-TRADOVATE_PASSWORD=...
-TRADOVATE_CID=...
-TRADOVATE_SECRET=...
-
-# Finnhub — Economic Calendar + News
-FINNHUB_API_KEY=...
-
-# Anthropic — AI Market Summary
-ANTHROPIC_API_KEY=...
-ANTHROPIC_MODEL=claude-sonnet-4-6
+```
+lib/backtest/
+  engine.ts          # runBacktest(bars, strategy, params) + toJournalTrades
+  strategies.ts      # ema-cross + rsi-mean-reversion (typed defaults, prepare + step)
+lib/hooks/use-backtest.ts
+components/widgets/backtest.tsx
 ```
 
-## Complete widget set (20)
+The engine is intentionally tiny: walk bars, check intrabar stop / target, ask the strategy for an entry / exit signal, repeat. Strategies expose `prepare(bars, params)` to memoize indicator series once and `step(ctx, params, prepared)` to return signals per bar. Adding a new strategy is one file in `lib/backtest/strategies.ts`.
 
-Unchanged from V5-1 — see Git history for the full set. The journal and layout are the only surfaces that gained DB persistence in V5-2.
-
-## Architecture additions (V5-2)
-
-```
-app/api/
-  health/                 # which providers are configured
-  journal/                # GET, POST  (DB-backed)
-  journal/[id]/           # PATCH, DELETE
-  settings/layout/        # GET, PUT
-lib/db/
-  client.ts               # lazy/optional Prisma singleton
-  repo.ts                 # listTrades / createTrade / updateTrade / deleteTrade / getLayout / setLayout
-lib/hooks/
-  use-db-mode.ts          # checking | db | local, cached module-globally
-prisma/
-  schema.prisma           # Trade / Watchlist / Alert / UserSetting on Postgres
-next.config.mjs           # serverComponentsExternalPackages for @prisma/client
-```
+Because `toJournalTrades` converts backtest output into Journal `Trade` records, the same `computeStats` function powers both the live Analytics widget and the Backtester results panel. The two cards look and behave identically.
 
 ## Phase plan
 
@@ -78,8 +73,8 @@ next.config.mjs           # serverComponentsExternalPackages for @prisma/client
 - ✅ **V3** — Economic Calendar + News + Options
 - ✅ **V4** — AI Summary + AI Insights + Correlation + Heatmaps
 - ✅ **V5-1** — Trading Journal + Performance Analytics (localStorage)
-- ✅ **V5-2** — Supabase + Prisma sync for journal & layout (this release)
-- **V5-3** — Alerts (price / level / indicator / event triggers) with browser notifications + Discord / Twilio (SMS) channels.
-- **V5-4** — Tradovate order entry from the Position Calculator + TradingView chart embed / webhook receiver.
-- **V5-5** — Rule-based backtester over historical Tradovate bars.
-- **V5-6** — Retire remaining synthetic surfaces: real Market Internals (IQFeed), real options feed (SpotGamma / Unusual Whales), real heatmap constituents (Polygon / IEX).
+- ✅ **V5-2** — Supabase + Prisma sync for journal & layout
+- ✅ **V5-3** — Alerts with browser, Discord, SMS channels
+- ✅ **V5-4** — Tradovate order entry + TradingView embed + webhook receiver
+- ✅ **V5-5** — Backtester (this release)
+- **V5-6** — Retire remaining synthetic surfaces: real Market Internals (IQFeed), real options feed (SpotGamma / Unusual Whales), real heatmap constituents (Polygon / IEX). Requires paid subscriptions; deferred until you commit to providers.

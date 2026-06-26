@@ -12,6 +12,7 @@ import { AiInsightsWidget } from "../widgets/ai-insights";
 import { AiSummaryWidget } from "../widgets/ai-summary";
 import { AlertsWidget } from "../widgets/alerts";
 import { AnalyticsWidget } from "../widgets/analytics";
+import { BacktestWidget } from "../widgets/backtest";
 import { CalendarWidget } from "../widgets/calendar";
 import { ChartWidget } from "../widgets/chart";
 import { CorrelationWidget } from "../widgets/correlation";
@@ -62,7 +63,8 @@ const DEFAULT_LAYOUTS: Layouts = {
     { i: "calculator",  x: 0, y: 106, w: 4, h: 18, minW: 3, minH: 14 },
     { i: "journal",     x: 4, y: 104, w: 8, h: 16, minW: 4, minH: 10 },
     { i: "analytics",   x: 0, y: 124, w: 12, h: 18, minW: 3, minH: 16 },
-    { i: "checklist",   x: 0, y: 142, w: 12, h: 11, minW: 3, minH: 8 },
+    { i: "backtest",    x: 0, y: 142, w: 12, h: 20, minW: 4, minH: 14 },
+    { i: "checklist",   x: 0, y: 162, w: 12, h: 11, minW: 3, minH: 8 },
   ],
   md: [
     { i: "chart",       x: 0, y: 0,   w: 10, h: 20 },
@@ -86,7 +88,8 @@ const DEFAULT_LAYOUTS: Layouts = {
     { i: "calculator",  x: 0, y: 172, w: 5,  h: 18 },
     { i: "journal",     x: 5, y: 172, w: 5,  h: 16 },
     { i: "analytics",   x: 0, y: 190, w: 10, h: 22 },
-    { i: "checklist",   x: 0, y: 212, w: 10, h: 13 },
+    { i: "backtest",    x: 0, y: 212, w: 10, h: 22 },
+    { i: "checklist",   x: 0, y: 234, w: 10, h: 13 },
   ],
   sm: [
     { i: "chart",       x: 0, y: 0,   w: 6, h: 22 },
@@ -110,7 +113,8 @@ const DEFAULT_LAYOUTS: Layouts = {
     { i: "calculator",  x: 0, y: 285, w: 6, h: 18 },
     { i: "journal",     x: 0, y: 303, w: 6, h: 18 },
     { i: "analytics",   x: 0, y: 321, w: 6, h: 24 },
-    { i: "checklist",   x: 0, y: 345, w: 6, h: 12 },
+    { i: "backtest",    x: 0, y: 345, w: 6, h: 24 },
+    { i: "checklist",   x: 0, y: 369, w: 6, h: 12 },
   ],
   xs: [
     { i: "chart",       x: 0, y: 0,   w: 4, h: 22 },
@@ -134,7 +138,8 @@ const DEFAULT_LAYOUTS: Layouts = {
     { i: "calculator",  x: 0, y: 309, w: 4, h: 20 },
     { i: "journal",     x: 0, y: 329, w: 4, h: 20 },
     { i: "analytics",   x: 0, y: 349, w: 4, h: 26 },
-    { i: "checklist",   x: 0, y: 375, w: 4, h: 12 },
+    { i: "backtest",    x: 0, y: 375, w: 4, h: 26 },
+    { i: "checklist",   x: 0, y: 401, w: 4, h: 12 },
   ],
   xxs: [
     { i: "chart",       x: 0, y: 0,   w: 2, h: 24 },
@@ -158,11 +163,12 @@ const DEFAULT_LAYOUTS: Layouts = {
     { i: "calculator",  x: 0, y: 338, w: 2, h: 20 },
     { i: "journal",     x: 0, y: 358, w: 2, h: 22 },
     { i: "analytics",   x: 0, y: 380, w: 2, h: 28 },
-    { i: "checklist",   x: 0, y: 408, w: 2, h: 13 },
+    { i: "backtest",    x: 0, y: 408, w: 2, h: 28 },
+    { i: "checklist",   x: 0, y: 436, w: 2, h: 13 },
   ],
 };
 
-const LAYOUT_KEY = "nqdesk.layout.v9";
+const LAYOUT_KEY = "nqdesk.layout.v10";
 
 export function DashboardGrid() {
   const mode = useDbMode();
@@ -255,6 +261,7 @@ export function DashboardGrid() {
       <div key="calculator"><DragHandle /><PositionCalculator /></div>
       <div key="journal"><DragHandle /><JournalWidget /></div>
       <div key="analytics"><DragHandle /><AnalyticsWidget /></div>
+      <div key="backtest"><DragHandle /><BacktestWidget /></div>
       <div key="checklist"><DragHandle /><TradingChecklist /></div>
     </ResponsiveGridLayout>
   );
