@@ -1,5 +1,16 @@
 export type AssetClass = "future" | "index" | "fx" | "rate" | "commodity" | "crypto";
 
+export type Timeframe = "1m" | "5m" | "15m" | "1H" | "4H" | "D";
+
+export const TIMEFRAME_SECONDS: Record<Timeframe, number> = {
+  "1m": 60,
+  "5m": 300,
+  "15m": 900,
+  "1H": 3600,
+  "4H": 14400,
+  "D": 86400,
+};
+
 export interface Instrument {
   symbol: string;
   display: string;
@@ -21,6 +32,15 @@ export interface Quote {
   prevClose: number;
   ts: number;
   series: number[];
+}
+
+export interface Candle {
+  ts: number; // bar open time (epoch ms)
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
 }
 
 export interface SessionLevels {

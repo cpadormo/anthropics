@@ -1,5 +1,12 @@
 import { INSTRUMENTS } from "../instruments";
-import type { Quote, RthSessionStats, SessionLevels } from "../types";
+import type {
+  Candle,
+  Quote,
+  RthSessionStats,
+  SessionLevels,
+  Timeframe,
+} from "../types";
+import { TIMEFRAME_SECONDS } from "../types";
 import type { DataProvider, Unsubscribe } from "./provider";
 
 // Deterministic-seeded geometric Brownian motion per instrument.
@@ -15,7 +22,7 @@ function mulberry32(seed: number) {
   };
 }
 
-function hashSymbol(s: string): number {
+function hashString(s: string): number {
   let h = 2166136261;
   for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
@@ -45,9 +52,12 @@ interface State {
 
 const TICK_MS = 750;
 const SERIES_LEN = 60;
+// Futures trade ~23h/day; use this for per-bar vol scaling so 1m, 5m, 1H bars feel right.
+const SECONDS_PER_TRADING_YEAR = 252 * 23 * 3600;
 
 export class MockDataProvider implements DataProvider {
   private states = new Map<string, State>();
+  private candleCache = new Map<string, Candle[]>();
   private interval: ReturnType<typeof setInterval> | null = null;
   private rnd: () => number;
 
@@ -61,10 +71,9 @@ export class MockDataProvider implements DataProvider {
 
   private initState(symbol: string): State {
     const inst = INSTRUMENTS[symbol];
-    const seed = hashSymbol(symbol) ^ dayOfYear();
+    const seed = hashString(symbol) ^ dayOfYear();
     const rnd = mulberry32(seed);
 
-    // Approximate ticks per trading year so annualVol maps to per-tick sigma.
     const ticksPerYear = (252 * 6.5 * 3600) / (TICK_MS / 1000);
     const sigmaPerTick = inst.annualVol / Math.sqrt(ticksPerYear);
 
@@ -87,9 +96,13 @@ export class MockDataProvider implements DataProvider {
       series,
     };
 
-    const levels = this.synthLevels(symbol, prevClose, last, rnd);
-    const stats = this.synthStats(symbol, prevClose, series, rnd);
-    return { quote, listeners: new Set(), sigmaPerTick, levels, stats };
+    return {
+      quote,
+      listeners: new Set(),
+      sigmaPerTick,
+      levels: this.synthLevels(symbol, prevClose, last, rnd),
+      stats: this.synthStats(symbol, prevClose, series, rnd),
+    };
   }
 
   private synthLevels(
@@ -160,6 +173,45 @@ export class MockDataProvider implements DataProvider {
     };
   }
 
+  private synthCandles(symbol: string, tf: Timeframe, count: number): Candle[] {
+    const inst = INSTRUMENTS[symbol];
+    const seed = hashString(symbol + ":" + tf) ^ dayOfYear();
+    const rnd = mulberry32(seed);
+    const tfSec = TIMEFRAME_SECONDS[tf];
+    const sigmaPerBar = inst.annualVol * Math.sqrt(tfSec / SECONDS_PER_TRADING_YEAR);
+
+    // Walk back from "now" so the rightmost bar is the live one.
+    const now = Date.now();
+    const lastTs = Math.floor(now / (tfSec * 1000)) * tfSec * 1000;
+    const bars: Candle[] = new Array(count);
+    let price = inst.basePrice * (1 + (rnd() - 0.5) * 0.02);
+
+    for (let i = 0; i < count; i++) {
+      const open = price;
+      const ret = sigmaPerBar * boxMullerNormal(rnd);
+      const close = open * Math.exp(ret);
+      // Wicks: independent positive draws scaled to bar vol
+      const wickUp = Math.abs(boxMullerNormal(rnd)) * sigmaPerBar * 0.6;
+      const wickDn = Math.abs(boxMullerNormal(rnd)) * sigmaPerBar * 0.6;
+      const high = Math.max(open, close) * (1 + wickUp);
+      const low = Math.min(open, close) * (1 - wickDn);
+      // Volume: heavier on wider-range bars
+      const range = high - low;
+      const baseVol = 1000 + rnd() * 4000;
+      const volume = Math.round(baseVol * (1 + (range / open) * 100));
+      bars[i] = {
+        ts: lastTs - (count - 1 - i) * tfSec * 1000,
+        open,
+        high,
+        low,
+        close,
+        volume,
+      };
+      price = close;
+    }
+    return bars;
+  }
+
   private start() {
     if (this.interval) return;
     this.interval = setInterval(() => {
@@ -207,6 +259,17 @@ export class MockDataProvider implements DataProvider {
 
   rthStats(symbol: string): RthSessionStats | null {
     return this.states.get(symbol)?.stats ?? null;
+  }
+
+  candles(symbol: string, timeframe: Timeframe, count = 200): Candle[] | null {
+    if (!INSTRUMENTS[symbol]) return null;
+    const key = `${symbol}:${timeframe}:${count}`;
+    let bars = this.candleCache.get(key);
+    if (!bars) {
+      bars = this.synthCandles(symbol, timeframe, count);
+      this.candleCache.set(key, bars);
+    }
+    return bars;
   }
 }
 
