@@ -6,18 +6,24 @@ import type { HeatmapCell } from "@/lib/data/heatmap";
 import { cn, fmtPct } from "@/lib/utils";
 
 export function HeatmapWidget() {
-  const groups = useHeatmap();
+  const { groups, demo } = useHeatmap();
   return (
     <GlassCard
       title="Heatmaps"
       subtitle="Sectors · Magnificent 7 · Semis"
       actions={
-        <span
-          className="text-2xs uppercase tracking-[0.12em] px-1.5 py-0.5 rounded bg-warn-soft text-warn border border-warn/30"
-          title="Constituent quotes will route through Polygon or IEX in V5"
-        >
-          demo
-        </span>
+        demo ? (
+          <span
+            className="text-2xs uppercase tracking-[0.12em] px-1.5 py-0.5 rounded bg-warn-soft text-warn border border-warn/30"
+            title="Set POLYGON_API_KEY for real constituent quotes"
+          >
+            demo
+          </span>
+        ) : (
+          <span className="text-2xs uppercase tracking-[0.12em] px-1.5 py-0.5 rounded bg-bull-soft text-bull border border-bull/30">
+            live
+          </span>
+        )
       }
     >
       <div className="space-y-3">

@@ -14,15 +14,24 @@ function tone(v: number, threshold: number): Tone {
 }
 
 export function MarketInternals() {
-  const i = useInternals();
+  const { internals: i, demo } = useInternals();
   return (
     <GlassCard
       title="Market Internals"
       subtitle="NYSE / NASDAQ breadth"
       actions={
-        <span className="text-2xs uppercase tracking-[0.12em] px-1.5 py-0.5 rounded bg-warn-soft text-warn border border-warn/30">
-          synthetic
-        </span>
+        demo ? (
+          <span
+            className="text-2xs uppercase tracking-[0.12em] px-1.5 py-0.5 rounded bg-warn-soft text-warn border border-warn/30"
+            title="Set IQFEED_BRIDGE_URL for real internals"
+          >
+            synthetic
+          </span>
+        ) : (
+          <span className="text-2xs uppercase tracking-[0.12em] px-1.5 py-0.5 rounded bg-bull-soft text-bull border border-bull/30">
+            live
+          </span>
+        )
       }
     >
       {!i ? (

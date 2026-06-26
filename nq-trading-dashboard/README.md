@@ -2,7 +2,7 @@
 
 Professional discretionary trading cockpit, optimized for Nasdaq-100 E-mini and Micro E-mini futures (NQ / MNQ).
 
-> **Status: V5-5** — 23 widgets live. Backtester closes out the V5 plan apart from V5-6 (retire remaining synthetic feeds). The dashboard now runs offline with localStorage, sync-upgrades to Supabase when a DB is configured, streams live Tradovate quotes + candles + orders, generates AI summaries, fires alerts to browser / Discord / SMS, and backtests strategies over historical bars.
+> **Status: V1.0** — 23 widgets, full V5 plan complete. Every external surface has a real-data adapter; demo pills flip to "live" automatically when the corresponding key is configured.
 
 ## Quick start
 
@@ -12,18 +12,43 @@ npm run dev
 # open http://localhost:3000
 ```
 
-No API keys required. The dashboard ships with sensible mock data for every external surface so you can build the layout and learn the keys before wiring real providers.
+No API keys required. The dashboard ships with sensible synthetic data for every external surface so you can build the layout and learn the keys before wiring real providers.
 
 ## Enable real data, surface by surface
 
-| Surface | Env to set |
-| --- | --- |
-| Live CME quotes + historical candles + order entry | `NEXT_PUBLIC_DATA_PROVIDER=tradovate` + `TRADOVATE_USERNAME / PASSWORD / CID / SECRET` |
-| Economic Calendar + News Feed | `FINNHUB_API_KEY` |
-| AI Market Summary | `ANTHROPIC_API_KEY` (default model `claude-sonnet-4-6`, override via `ANTHROPIC_MODEL`) |
-| Journal + layout sync | `DATABASE_URL` (Supabase / any Postgres), then `npm run db:generate && npm run db:push` |
-| Alert channels | `DISCORD_WEBHOOK_URL` and / or `TWILIO_ACCOUNT_SID / AUTH_TOKEN / FROM_NUMBER / TO_NUMBER` |
-| TradingView alert webhook | `TRADINGVIEW_WEBHOOK_SECRET` (validated on POST to `/api/tradingview/webhook?secret=...`) |
+| Surface | Env to set | Notes |
+| --- | --- | --- |
+| Live CME quotes + historical candles + order entry | `NEXT_PUBLIC_DATA_PROVIDER=tradovate` + `TRADOVATE_USERNAME / PASSWORD / CID / SECRET` | Demo or live env per `TRADOVATE_ENV` |
+| Economic Calendar + News Feed | `FINNHUB_API_KEY` | Free tier (60 req/min) is plenty |
+| AI Market Summary | `ANTHROPIC_API_KEY` (default model `claude-sonnet-4-6`, override via `ANTHROPIC_MODEL`) | ~$0.10–$0.30 / trading day at default |
+| Journal + layout sync | `DATABASE_URL` (Supabase / any Postgres) | Then `npm run db:generate && npm run db:push` |
+| Alert channels | `DISCORD_WEBHOOK_URL` and / or `TWILIO_ACCOUNT_SID / AUTH_TOKEN / FROM_NUMBER / TO_NUMBER` | Browser notifications always available |
+| TradingView alert webhook | `TRADINGVIEW_WEBHOOK_SECRET` | Validated on POST to `/api/tradingview/webhook?secret=...` |
+| **Heatmap constituents (V5-6)** | `POLYGON_API_KEY` | Free tier (15-min delayed) works for snapshots |
+| **Options GEX / Max Pain / OI (V5-6)** | `UNUSUAL_WHALES_API_KEY` | Endpoints depend on UW tier; adapter is defensive and falls back per-field |
+| **Market Internals (V5-6)** | `IQFEED_BRIDGE_URL` | See [IQFeed bridge contract](#iqfeed-bridge-contract) below |
+
+### IQFeed bridge contract
+
+The Next.js app doesn't talk to IQConnect.exe directly — IQFeed is a Windows-native TCP service and conflating native concerns with the dashboard runtime is messy. Instead, you run a tiny HTTP bridge alongside IQConnect that exposes exactly one endpoint:
+
+```
+GET /internals
+-> {
+  "nyseTick":      number,   // NYSE cumulative TICK ($TICK in ToS)
+  "nasdaqTick":    number,   // NASDAQ cumulative TICK ($TICKQ)
+  "trin":          number,   // Arms index ($TRIN)
+  "advanceDecline": number,  // advancers minus decliners
+  "addLine":       number,   // cumulative A/D line
+  "putCall":       number,   // put/call ratio
+  "riskOn":        number,   // optional composite, [-1, 1]
+  "ts":            number    // epoch ms
+}
+```
+
+Then set `IQFEED_BRIDGE_URL=http://localhost:7878` (or wherever your bridge listens). A minimal Node bridge is around 50 lines using `net.createConnection({ port: 5009 })` to talk to IQConnect, parsing `T`/`Z` messages by tag, and serving the latest values on an HTTP endpoint. Same pattern works in Python with `socket` + `http.server`.
+
+Keeping the bridge out of the Next.js app means you can swap IQFeed for any other internals source by re-pointing `IQFEED_BRIDGE_URL` at a different process — useful if you migrate to a different vendor later.
 
 ## Complete widget set (23)
 
@@ -34,47 +59,50 @@ No API keys required. The dashboard ships with sensible mock data for every exte
 | AI Market Summary | Claude-generated bias / levels / scenarios / risks / patience (1m cadence) |
 | AI Insights | Heuristic pattern + regime detection (no LLM cost) |
 | Correlation Dashboard | 10×10 cross-asset correlation matrix |
-| Heatmaps | Sectors / Mag 7 / Semis |
+| Heatmaps | Sectors / Mag 7 / Semis (Polygon when configured) |
 | Multi-Timeframe Trend | 4 symbols × 6 timeframes |
 | Market Overview | 11 instruments — price, daily %, change, sparkline |
-| Market Internals | TICK / TRIN / A-D / ADD / Put-Call / Risk Regime gauge |
+| Market Internals | TICK / TRIN / A-D / ADD / Put-Call / Risk Regime (IQFeed bridge when configured) |
 | Overnight & Key Levels | Asia/London/Overnight + PDH/PDL/PDC + PWH/PWL + PMH/PML + gap |
 | Session Statistics | RTH high/low, range vs avg, IB high/low, breakout state, momentum |
 | Volatility | VIX, VVIX, ATR(14, D), 20-day realized vol, range vs ATR%, 1D expected move |
 | Volume Profile | 40-bin profile, POC, 70% value area (VAH / VAL) |
 | Economic Calendar | High + medium impact events, sticky countdown to next print |
 | News Feed | Filtered, categorized headlines |
-| Options | GEX / Max Pain / dealer pos / expected move / largest OI strikes |
+| Options | GEX / Max Pain / dealer pos / expected move / largest OI strikes (Unusual Whales when configured) |
 | Alerts | Price triggers with browser / Discord / SMS delivery |
 | Watchlist | Sortable, per-row notes, persists locally |
-| Position Size Calculator | Fixed-fractional risk + Tradovate order entry (Buy / Sell / Market / Limit / Stop) |
-| Trading Journal | Log + edit trades; R-multiple + dollar PnL; syncs to Postgres if configured |
+| Position Size Calculator | Fixed-fractional risk + Tradovate order entry |
+| Trading Journal | Log + edit trades; R-multiple + dollar PnL; Postgres sync if configured |
 | Performance Analytics | Live: win rate, profit factor, expectancy, equity curve, R distribution |
-| Backtester | EMA Cross + RSI Mean Reversion strategies over historical bars; same stats path as live analytics |
+| Backtester | EMA Cross + RSI Mean Reversion strategies over historical bars |
 | Pre-Trade Checklist | 7-item discipline gate |
 
-## V5-5 architecture
+## V5-6 architecture
+
+Each retired-synthetic surface follows the same pattern: a server route adapts the upstream vendor's response into the widget's existing shape; the client hook calls the route and merges with the synthesizer for any missing fields; the widget renders a `live` pill instead of `demo` only when the route reports `demo: false`.
 
 ```
-lib/backtest/
-  engine.ts          # runBacktest(bars, strategy, params) + toJournalTrades
-  strategies.ts      # ema-cross + rsi-mean-reversion (typed defaults, prepare + step)
-lib/hooks/use-backtest.ts
-components/widgets/backtest.tsx
+app/api/
+  heatmap/      # Polygon /v2/snapshot/locale/us/markets/stocks/tickers
+  options/      # Unusual Whales /api/stock/{ticker}/{greek-exposure,max-pain,option-stats}
+  internals/    # operator-run HTTP bridge wrapping IQConnect.exe
+lib/hooks/
+  use-heatmap.ts        # /api/heatmap with synthetic fallback
+  use-options.ts        # /api/options merged over synthesizer
+  use-internals.ts      # /api/internals polled at 1.5s when bridge live, else synthetic OU
 ```
-
-The engine is intentionally tiny: walk bars, check intrabar stop / target, ask the strategy for an entry / exit signal, repeat. Strategies expose `prepare(bars, params)` to memoize indicator series once and `step(ctx, params, prepared)` to return signals per bar. Adding a new strategy is one file in `lib/backtest/strategies.ts`.
-
-Because `toJournalTrades` converts backtest output into Journal `Trade` records, the same `computeStats` function powers both the live Analytics widget and the Backtester results panel. The two cards look and behave identically.
 
 ## Phase plan
 
 - ✅ **V1 / V2A / V2B-1 / V2B-2 / V2B-3** — Shell, charting, indicators, Tradovate adapter, derived levels
 - ✅ **V3** — Economic Calendar + News + Options
 - ✅ **V4** — AI Summary + AI Insights + Correlation + Heatmaps
-- ✅ **V5-1** — Trading Journal + Performance Analytics (localStorage)
-- ✅ **V5-2** — Supabase + Prisma sync for journal & layout
-- ✅ **V5-3** — Alerts with browser, Discord, SMS channels
-- ✅ **V5-4** — Tradovate order entry + TradingView embed + webhook receiver
-- ✅ **V5-5** — Backtester (this release)
-- **V5-6** — Retire remaining synthetic surfaces: real Market Internals (IQFeed), real options feed (SpotGamma / Unusual Whales), real heatmap constituents (Polygon / IEX). Requires paid subscriptions; deferred until you commit to providers.
+- ✅ **V5-1** — Trading Journal + Performance Analytics
+- ✅ **V5-2** — Supabase + Prisma sync
+- ✅ **V5-3** — Alerts (browser / Discord / SMS)
+- ✅ **V5-4** — Tradovate order entry + TradingView embed + webhook
+- ✅ **V5-5** — Backtester (EMA Cross + RSI Mean Reversion)
+- ✅ **V5-6** — Polygon heatmap + Unusual Whales options + IQFeed bridge internals (this release)
+
+Full plan delivered. Ship it.

@@ -12,7 +12,7 @@ const SYMBOL = "NQ";
 export function OptionsWidget() {
   const inst = INSTRUMENTS[SYMBOL];
   const quote = useQuote(SYMBOL);
-  const opt = useOptions(SYMBOL);
+  const { summary: opt, demo } = useOptions(SYMBOL);
   const dec = inst.priceDecimals;
 
   return (
@@ -20,12 +20,18 @@ export function OptionsWidget() {
       title="Options"
       subtitle={`${inst.name} · NDX proxy`}
       actions={
-        <span
-          className="text-2xs uppercase tracking-[0.12em] px-1.5 py-0.5 rounded bg-warn-soft text-warn border border-warn/30"
-          title="OI / GEX are synthetic until a real feed (SpotGamma / Unusual Whales) is wired in V4. Expected move uses the real VIX quote."
-        >
-          demo
-        </span>
+        demo ? (
+          <span
+            className="text-2xs uppercase tracking-[0.12em] px-1.5 py-0.5 rounded bg-warn-soft text-warn border border-warn/30"
+            title="Set UNUSUAL_WHALES_API_KEY for real GEX / Max Pain / OI"
+          >
+            demo
+          </span>
+        ) : (
+          <span className="text-2xs uppercase tracking-[0.12em] px-1.5 py-0.5 rounded bg-bull-soft text-bull border border-bull/30">
+            live
+          </span>
+        )
       }
     >
       {!opt || !quote ? (

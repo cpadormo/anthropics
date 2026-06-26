@@ -1,6 +1,6 @@
-// Synthetic constituent heatmap. V5 will route real quotes (Polygon /
-// IEX Cloud / Finnhub) for sectors, Mag 7, and semis behind the same
-// HeatmapGroup shape so the widget never changes.
+// Heatmap universe + synthetic fallback. The Polygon adapter
+// (app/api/heatmap/route.ts) reuses these constants so the real and
+// synthetic data paths share the exact same tickers and labels.
 
 export interface HeatmapCell {
   symbol: string;
@@ -15,7 +15,7 @@ export interface HeatmapGroup {
   cells: HeatmapCell[];
 }
 
-const SECTORS = [
+export const SECTORS = [
   { sym: "XLK",  name: "Tech" },
   { sym: "XLF",  name: "Financials" },
   { sym: "XLE",  name: "Energy" },
@@ -27,9 +27,9 @@ const SECTORS = [
   { sym: "XLU",  name: "Utilities" },
   { sym: "XLRE", name: "Real Estate" },
   { sym: "XLC",  name: "Comms" },
-];
+] as const;
 
-const MAG7 = [
+export const MAG7 = [
   { sym: "AAPL",  name: "Apple",     cap: 3400 },
   { sym: "MSFT",  name: "Microsoft", cap: 3200 },
   { sym: "NVDA",  name: "Nvidia",    cap: 3800 },
@@ -37,9 +37,9 @@ const MAG7 = [
   { sym: "AMZN",  name: "Amazon",    cap: 2000 },
   { sym: "META",  name: "Meta",      cap: 1500 },
   { sym: "TSLA",  name: "Tesla",     cap: 1100 },
-];
+] as const;
 
-const SEMIS = [
+export const SEMIS = [
   { sym: "NVDA", name: "Nvidia",     cap: 3800 },
   { sym: "AVGO", name: "Broadcom",   cap: 900 },
   { sym: "TSM",  name: "TSMC",       cap: 1000 },
@@ -50,7 +50,7 @@ const SEMIS = [
   { sym: "INTC", name: "Intel",      cap: 130 },
   { sym: "MU",   name: "Micron",     cap: 110 },
   { sym: "AMAT", name: "Applied Mat", cap: 180 },
-];
+] as const;
 
 function mulberry32(seed: number) {
   return function () {
@@ -71,10 +71,8 @@ function hash(s: string): number {
 }
 
 function syntheticChange(symbol: string, magnitude: number): number {
-  // Stable within a 60s bucket so colors don't flicker.
   const bucket = Math.floor(Date.now() / (60 * 1000));
   const rnd = mulberry32(hash(symbol) ^ bucket);
-  // Slightly correlated by drawing two samples and blending.
   return ((rnd() - 0.5) * 1.4 + (rnd() - 0.5) * 0.6) * magnitude;
 }
 
