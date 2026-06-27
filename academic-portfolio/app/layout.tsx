@@ -8,6 +8,19 @@ import { ThemeProvider } from "@/components/layout/ThemeProvider";
 export const metadata: Metadata = {
   title: "Academic Portfolio",
   description: "Coursework, research, writing, internships, and growth — in one place.",
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    googleBot: {
+      index: false,
+      follow: false,
+      noimageindex: true,
+      "max-snippet": -1,
+      "max-image-preview": "none",
+      "max-video-preview": -1,
+    },
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
