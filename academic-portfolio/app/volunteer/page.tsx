@@ -1,0 +1,50 @@
+import { prisma } from "@/lib/db/client";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { HeartHandshake } from "lucide-react";
+import { formatDateRange, splitLines } from "@/lib/utils";
+
+export default async function VolunteerPage() {
+  const items = await prisma.volunteer.findMany({ orderBy: { createdAt: "desc" } });
+  const total = items.reduce((acc, v) => acc + v.hours, 0);
+
+  return (
+    <div>
+      <PageHeader title="Volunteer Work" description={`${total} total hours across community engagement.`} />
+      {items.length === 0 ? (
+        <EmptyState icon={<HeartHandshake className="h-8 w-8 opacity-40" />} title="No volunteer entries yet" addHref="/admin/volunteer/new" />
+      ) : (
+        <div className="space-y-3">
+          {items.map((v) => {
+            const skills = splitLines(v.skills);
+            return (
+              <article key={v.id} className="card p-5">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <h2 className="text-base font-semibold">{v.organization}</h2>
+                  <div className="text-xs" style={{ color: "var(--text-soft)" }}>
+                    {formatDateRange(v.startDate, v.endDate)} · {v.hours} hours
+                  </div>
+                </div>
+                <div className="mt-1 text-sm" style={{ color: "var(--text-soft)" }}>
+                  {v.role} · Serves: {v.population}
+                </div>
+                {skills.length > 0 && (
+                  <ul className="mt-3 flex flex-wrap gap-1.5">
+                    {skills.map((s) => (
+                      <li key={s} className="badge">
+                        {s}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <p className="mt-3 text-sm italic" style={{ color: "var(--text-soft)" }}>
+                  {v.reflection}
+                </p>
+              </article>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
