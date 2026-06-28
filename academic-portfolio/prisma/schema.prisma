@@ -1,0 +1,214 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Profile {
+  id            String   @id @default(cuid())
+  name          String
+  tagline       String
+  bio           String
+  email         String
+  linkedinUrl   String?
+  githubUrl     String?
+  university    String
+  major         String
+  minor         String?
+  expectedGrad  String?
+  resumePdfUrl  String?
+  cvPdfUrl      String?
+  updatedAt     DateTime @updatedAt
+}
+
+model Course {
+  id           String   @id @default(cuid())
+  code         String
+  title        String
+  semester     String
+  year         Int
+  credits      Float    @default(3)
+  instructor   String
+  description  String
+  topics       String
+  projects     String
+  papers       String
+  finalGrade   String?
+  reflection   String
+  category     String   @default("General")
+  syllabusUrl  String?
+  attachments  String   @default("[]")
+  createdAt    DateTime @default(now())
+
+  @@index([semester, year])
+  @@index([category])
+}
+
+model ResearchLab {
+  id           String   @id @default(cuid())
+  name         String
+  mentor       String
+  startDate    String
+  endDate      String?
+  role         String
+  questions    String
+  methods      String
+  responsibilities String
+  skills       String
+  reflection   String
+  posters      String   @default("[]")
+  papers       String   @default("[]")
+  createdAt    DateTime @default(now())
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  title       String
+  course      String?
+  date        String
+  summary     String
+  goal        String
+  method      String
+  outcome     String
+  skills      String
+  files       String   @default("[]")
+  thumbnail   String?
+  createdAt   DateTime @default(now())
+}
+
+model Paper {
+  id        String   @id @default(cuid())
+  title     String
+  type      String   @default("Research")
+  course    String?
+  date      String
+  abstract  String
+  keywords  String
+  grade     String?
+  pdfUrl    String?
+  createdAt DateTime @default(now())
+}
+
+model Internship {
+  id              String   @id @default(cuid())
+  organization    String
+  supervisor      String
+  role            String
+  startDate       String
+  endDate         String?
+  responsibilities String
+  cases           String
+  skills          String
+  reflection      String
+  hours           Int      @default(0)
+  recLetterUrl    String?
+  photos          String   @default("[]")
+  createdAt       DateTime @default(now())
+}
+
+model Volunteer {
+  id           String   @id @default(cuid())
+  organization String
+  role         String
+  startDate    String
+  endDate      String?
+  hours        Int      @default(0)
+  population   String
+  skills       String
+  reflection   String
+  createdAt    DateTime @default(now())
+}
+
+model Leadership {
+  id           String   @id @default(cuid())
+  organization String
+  position     String
+  startDate    String
+  endDate      String?
+  accomplishments String
+  projectsLed  String
+  createdAt    DateTime @default(now())
+}
+
+model Certification {
+  id       String   @id @default(cuid())
+  name     String
+  issuer   String
+  date     String
+  expires  String?
+  credentialUrl String?
+}
+
+model Award {
+  id          String   @id @default(cuid())
+  title       String
+  issuer      String
+  date        String
+  category    String   @default("Academic")
+  description String
+}
+
+model Conference {
+  id            String   @id @default(cuid())
+  name          String
+  location      String
+  date          String
+  role          String   @default("Attendee")
+  posterTitle   String?
+  presentationTitle String?
+  topics        String
+  photos        String   @default("[]")
+}
+
+model Skill {
+  id       String  @id @default(cuid())
+  name     String
+  category String
+  level    String  @default("Proficient")
+  notes    String?
+}
+
+model Book {
+  id         String   @id @default(cuid())
+  title      String
+  author     String
+  category   String
+  rating     Int      @default(0)
+  dateRead   String
+  notes      String
+  takeaways  String
+  favoriteQuote String?
+}
+
+model TimelineEvent {
+  id          String   @id @default(cuid())
+  title       String
+  date        String
+  year        String
+  type        String
+  description String
+  link        String?
+}
+
+model Goal {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  category    String   @default("Semester")
+  status      String   @default("Active")
+  targetDate  String?
+  createdAt   DateTime @default(now())
+}
+
+model GalleryItem {
+  id       String   @id @default(cuid())
+  title    String
+  caption  String?
+  category String
+  date     String
+  imageUrl String
+}
