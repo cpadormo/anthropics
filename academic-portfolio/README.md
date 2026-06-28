@@ -6,13 +6,17 @@ A single-user portfolio site for an undergraduate building toward graduate schoo
 
 - Next.js 14 (App Router, server actions)
 - TypeScript + Tailwind CSS
-- Prisma + SQLite (file-based, zero config)
+- Prisma + PostgreSQL (Neon, Supabase, or any Postgres)
 - iron-session for admin auth
 
-## Quick start
+## Quick start (local)
+
+You need a Postgres database URL. The fastest free option is [Neon](https://neon.tech) —
+create a project and copy the connection string.
 
 ```bash
 cp .env.example .env
+# edit .env: paste your Postgres URL into DATABASE_URL and DIRECT_URL
 npm install
 npx prisma db push
 npm run db:seed     # optional: populate realistic placeholder data
@@ -20,6 +24,17 @@ npm run dev
 ```
 
 Visit http://localhost:3000.
+
+## Deploying to Vercel
+
+1. Create a Postgres database on [Neon](https://neon.tech) (free).
+2. Import this repo in [Vercel](https://vercel.com/new).
+3. In Vercel project settings → Environment Variables, add:
+   - `DATABASE_URL` — Neon pooled connection string
+   - `DIRECT_URL` — Neon direct connection string
+   - `ADMIN_PASSWORD` — your edit password
+   - `SESSION_SECRET` — 32+ character random string
+4. Deploy. The build command applies the schema automatically.
 
 Set `ADMIN_PASSWORD` in `.env` (default: `changeme`) and a 32+ character `SESSION_SECRET`, then sign in at `/admin/login`.
 
