@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/client";
 import { entities, type EntityConfig } from "@/lib/entities";
-import { saveUpload } from "@/lib/upload";
 import { getSession, requireAdmin } from "@/lib/auth";
 
 export async function loginAction(formData: FormData) {
@@ -25,17 +24,10 @@ export async function logoutAction() {
   redirect("/admin/login");
 }
 
-async function buildData(entity: EntityConfig, formData: FormData) {
+function buildData(entity: EntityConfig, formData: FormData) {
   const data: Record<string, unknown> = {};
   for (const field of entity.fields) {
     const raw = formData.get(field.name);
-    if (field.type === "file") {
-      const file = raw as File | null;
-      if (file && typeof file === "object" && "size" in file && file.size > 0) {
-        data[field.name] = await saveUpload(file);
-      }
-      continue;
-    }
     if (raw == null) continue;
     const value = String(raw).trim();
     if (value === "" && !field.required) continue;
@@ -54,24 +46,29 @@ export async function upsertAction(entityKey: string, id: string | null, formDat
 
   const entity = entities[entityKey];
   if (!entity) throw new Error(`Unknown entity: ${entityKey}`);
-  const data = await buildData(entity, formData);
+  const data = buildData(entity, formData);
 
   const model = (prisma as unknown as Record<string, { create: Function; update: Function; upsert: Function }>)[
     entity.prismaModel
   ];
   if (!model) throw new Error(`Missing model: ${entity.prismaModel}`);
 
-  if (entity.prismaModel === "profile") {
-    const existing = await prisma.profile.findFirst();
-    if (existing) {
-      await prisma.profile.update({ where: { id: existing.id }, data: data as never });
+  try {
+    if (entity.prismaModel === "profile") {
+      const existing = await prisma.profile.findFirst();
+      if (existing) {
+        await prisma.profile.update({ where: { id: existing.id }, data: data as never });
+      } else {
+        await prisma.profile.create({ data: data as never });
+      }
+    } else if (id) {
+      await model.update({ where: { id }, data });
     } else {
-      await prisma.profile.create({ data: data as never });
+      await model.create({ data });
     }
-  } else if (id) {
-    await model.update({ where: { id }, data });
-  } else {
-    await model.create({ data });
+  } catch (err) {
+    console.error(`[admin] failed to save ${entityKey}`, { data, error: err });
+    throw err;
   }
 
   revalidatePath("/", "layout");

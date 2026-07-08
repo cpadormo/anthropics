@@ -13,12 +13,12 @@ export function EntityForm({
   action: (formData: FormData) => Promise<void>;
 }) {
   return (
-    <form action={action} encType="multipart/form-data" className="space-y-4">
+    <form action={action} className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2">
         {entity.fields.map((f) => {
           const value = initial?.[f.name];
           const stringValue = value == null ? "" : String(value);
-          const spanFull = f.type === "textarea" || f.type === "file";
+          const spanFull = f.type === "textarea";
           return (
             <div key={f.name} className={spanFull ? "md:col-span-2" : undefined}>
               <label className="label" htmlFor={f.name}>
@@ -44,19 +44,6 @@ export function EntityForm({
                     </option>
                   ))}
                 </select>
-              ) : f.type === "file" ? (
-                <>
-                  <input id={f.name} name={f.name} type="file" accept={f.accept} className="input" />
-                  {stringValue && (
-                    <p className="mt-1 text-xs" style={{ color: "var(--text-soft)" }}>
-                      Current:{" "}
-                      <a className="underline" href={stringValue} target="_blank" rel="noreferrer">
-                        {stringValue}
-                      </a>{" "}
-                      (upload a new file to replace)
-                    </p>
-                  )}
-                </>
               ) : (
                 <input
                   id={f.name}

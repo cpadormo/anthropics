@@ -34,9 +34,9 @@ model Course {
   credits      Float    @default(3)
   instructor   String
   description  String
-  topics       String
-  projects     String
-  papers       String
+  topics       String   @default("")
+  projects     String   @default("")
+  papers       String   @default("")
   finalGrade   String?
   reflection   String
   category     String   @default("General")
@@ -56,9 +56,9 @@ model ResearchLab {
   endDate      String?
   role         String
   questions    String
-  methods      String
-  responsibilities String
-  skills       String
+  methods      String   @default("")
+  responsibilities String @default("")
+  skills       String   @default("")
   reflection   String
   posters      String   @default("[]")
   papers       String   @default("[]")
@@ -74,7 +74,7 @@ model Project {
   goal        String
   method      String
   outcome     String
-  skills      String
+  skills      String   @default("")
   files       String   @default("[]")
   thumbnail   String?
   createdAt   DateTime @default(now())
@@ -87,7 +87,7 @@ model Paper {
   course    String?
   date      String
   abstract  String
-  keywords  String
+  keywords  String   @default("")
   grade     String?
   pdfUrl    String?
   createdAt DateTime @default(now())
@@ -101,12 +101,27 @@ model Internship {
   startDate       String
   endDate         String?
   responsibilities String
-  cases           String
-  skills          String
+  cases           String   @default("")
+  skills          String   @default("")
   reflection      String
   hours           Int      @default(0)
   recLetterUrl    String?
   photos          String   @default("[]")
+  createdAt       DateTime @default(now())
+}
+
+model WorkExperience {
+  id              String   @id @default(cuid())
+  organization    String
+  role            String
+  location        String?
+  startDate       String
+  endDate         String?
+  employmentType  String
+  responsibilities String
+  skills          String   @default("")
+  reflection      String   @default("")
+  hours           Int      @default(0)
   createdAt       DateTime @default(now())
 }
 
@@ -117,8 +132,8 @@ model Volunteer {
   startDate    String
   endDate      String?
   hours        Int      @default(0)
-  population   String
-  skills       String
+  population   String?
+  skills       String   @default("")
   reflection   String
   createdAt    DateTime @default(now())
 }
@@ -130,7 +145,7 @@ model Leadership {
   startDate    String
   endDate      String?
   accomplishments String
-  projectsLed  String
+  projectsLed  String   @default("")
   createdAt    DateTime @default(now())
 }
 

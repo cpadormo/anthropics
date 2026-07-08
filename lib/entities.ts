@@ -24,6 +24,7 @@ export type EntityConfig = {
     | "project"
     | "paper"
     | "internship"
+    | "workExperience"
     | "volunteer"
     | "leadership"
     | "certification"
@@ -36,6 +37,8 @@ export type EntityConfig = {
     | "galleryItem";
   fields: EntityField[];
 };
+
+const linkHelp = "Paste a shareable link (Google Drive, Dropbox, OneDrive). Leave blank if you don't have one.";
 
 const linesHelp = "One item per line.";
 
@@ -57,8 +60,8 @@ export const entities: Record<string, EntityConfig> = {
       { name: "expectedGrad", label: "Expected Graduation", type: "text" },
       { name: "linkedinUrl", label: "LinkedIn URL", type: "url" },
       { name: "githubUrl", label: "GitHub URL", type: "url" },
-      { name: "resumePdfUrl", label: "Resume PDF", type: "file", accept: "application/pdf" },
-      { name: "cvPdfUrl", label: "CV PDF", type: "file", accept: "application/pdf" },
+      { name: "resumePdfUrl", label: "Resume link", type: "url", help: linkHelp },
+      { name: "cvPdfUrl", label: "CV link", type: "url", help: linkHelp },
     ],
   },
   course: {
@@ -93,7 +96,7 @@ export const entities: Record<string, EntityConfig> = {
       { name: "papers", label: "Research papers written", type: "textarea", help: linesHelp },
       { name: "finalGrade", label: "Final grade", type: "text", placeholder: "A" },
       { name: "reflection", label: "Reflection", type: "textarea", required: true },
-      { name: "syllabusUrl", label: "Syllabus PDF", type: "file", accept: "application/pdf" },
+      { name: "syllabusUrl", label: "Syllabus link", type: "url", help: linkHelp },
     ],
   },
   lab: {
@@ -152,7 +155,7 @@ export const entities: Record<string, EntityConfig> = {
       { name: "abstract", label: "Abstract", type: "textarea", required: true },
       { name: "keywords", label: "Keywords", type: "textarea", help: "Comma- or newline-separated." },
       { name: "grade", label: "Grade (optional)", type: "text" },
-      { name: "pdfUrl", label: "PDF", type: "file", accept: "application/pdf" },
+      { name: "pdfUrl", label: "PDF link", type: "url", help: linkHelp },
     ],
   },
   internship: {
@@ -172,7 +175,32 @@ export const entities: Record<string, EntityConfig> = {
       { name: "skills", label: "Skills", type: "textarea", help: linesHelp },
       { name: "reflection", label: "Reflection", type: "textarea", required: true },
       { name: "hours", label: "Total hours", type: "number", required: true },
-      { name: "recLetterUrl", label: "Recommendation letter", type: "file", accept: "application/pdf" },
+      { name: "recLetterUrl", label: "Recommendation letter link", type: "url", help: linkHelp },
+    ],
+  },
+  work: {
+    key: "work",
+    label: "Work experience",
+    plural: "Work experience",
+    listUrl: "/work",
+    prismaModel: "workExperience",
+    fields: [
+      { name: "organization", label: "Employer", type: "text", required: true },
+      { name: "role", label: "Position / title", type: "text", required: true },
+      { name: "location", label: "Location", type: "text" },
+      { name: "startDate", label: "Start date", type: "text", required: true, placeholder: "Jun 2025" },
+      { name: "endDate", label: "End date", type: "text", placeholder: "Leave blank if current" },
+      {
+        name: "employmentType",
+        label: "Employment type",
+        type: "select",
+        options: ["Full-time", "Part-time", "Seasonal", "Contract", "Self-employed", "Tutor / TA"],
+        required: true,
+      },
+      { name: "responsibilities", label: "Responsibilities", type: "textarea", help: linesHelp, required: true },
+      { name: "skills", label: "Skills gained", type: "textarea", help: linesHelp },
+      { name: "reflection", label: "Reflection", type: "textarea" },
+      { name: "hours", label: "Hours per week (optional)", type: "number" },
     ],
   },
   extracurricular: {
@@ -336,7 +364,7 @@ export const entities: Record<string, EntityConfig> = {
         required: true,
       },
       { name: "date", label: "Date", type: "text", required: true },
-      { name: "imageUrl", label: "Image", type: "file", required: true, accept: "image/*" },
+      { name: "imageUrl", label: "Image URL", type: "url", required: true, help: "Paste a direct image URL (e.g. Imgur, Google Photos share, or any public image link)." },
     ],
   },
 };
