@@ -1,0 +1,94 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #f7f9fc;
+  --surface: #ffffff;
+  --border: #e5eaf2;
+  --text: #0f1f3a;
+  --text-soft: #475569;
+  --accent: #22406d;
+  --accent-soft: #dbe5f2;
+}
+
+.dark {
+  --bg: #070f1f;
+  --surface: #0f1f3a;
+  --border: #1a3155;
+  --text: #f0f4fa;
+  --text-soft: #88a7d2;
+  --accent: #5b85bf;
+  --accent-soft: #1a3155;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer components {
+  .card {
+    @apply rounded-xl border bg-[var(--surface)] shadow-card transition-shadow;
+    border-color: var(--border);
+  }
+  .card:hover {
+    box-shadow:
+      0 2px 4px rgba(15, 31, 58, 0.05),
+      0 8px 24px rgba(15, 31, 58, 0.08);
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-3.5 py-2 text-sm font-medium transition-colors;
+  }
+  .btn-primary {
+    @apply btn bg-navy-800 text-white hover:bg-navy-700;
+  }
+  .dark .btn-primary {
+    @apply bg-navy-600 hover:bg-navy-500;
+  }
+  .btn-ghost {
+    @apply btn border text-[color:var(--text)] hover:bg-[color:var(--accent-soft)];
+    border-color: var(--border);
+  }
+  .input {
+    @apply w-full rounded-md border bg-[var(--surface)] px-3 py-2 text-sm outline-none transition focus:ring-2 focus:ring-navy-500/40;
+    border-color: var(--border);
+    color: var(--text);
+  }
+  .label {
+    @apply mb-1 block text-xs font-medium uppercase tracking-wide;
+    color: var(--text-soft);
+  }
+  .nav-link {
+    @apply flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors;
+    color: var(--text-soft);
+  }
+  .nav-link:hover {
+    background: var(--accent-soft);
+    color: var(--text);
+  }
+  .nav-link[data-active="true"] {
+    background: var(--accent-soft);
+    color: var(--text);
+  }
+  .badge {
+    @apply inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium;
+    border-color: var(--border);
+    color: var(--text-soft);
+  }
+  .section-title {
+    @apply text-2xl font-semibold tracking-tight;
+    color: var(--text);
+  }
+  .section-sub {
+    @apply mt-1 text-sm;
+    color: var(--text-soft);
+  }
+}

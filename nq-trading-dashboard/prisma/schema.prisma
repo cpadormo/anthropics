@@ -1,0 +1,79 @@
+// Prisma schema for V5-2's Supabase sync layer.
+//
+// V5-1 is local-only via localStorage so the dashboard runs without a
+// database. V5-2 wires server routes that read / write through this schema
+// against a Supabase Postgres instance pointed to by DATABASE_URL.
+//
+// Setup once you're ready:
+//   1. Create a Supabase project (or any Postgres).
+//   2. Add DATABASE_URL=postgresql://... to .env.local.
+//   3. npx prisma migrate dev --name init
+//
+// The Trade model mirrors the local Trade type in lib/data/journal.ts so
+// V5-2 can swap storage backends without touching the widget.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Trade {
+  id            String    @id
+  userId        String    @default("local")
+  symbol        String
+  side          String    // "long" | "short"
+  entryTime     DateTime
+  exitTime      DateTime?
+  entry         Float
+  exit          Float?
+  contracts     Int
+  stopLoss      Float?
+  takeProfit    Float?
+  pointValue    Float
+  pnlPoints     Float?
+  pnlDollars    Float?
+  rMultiple     Float?
+  setup         String?
+  tags          String[]
+  notes         String    @default("")
+  screenshotUrl String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([userId, entryTime])
+}
+
+model Watchlist {
+  id        String   @id
+  userId    String   @default("local")
+  name      String   @default("Default")
+  symbols   String[]
+  notes     Json     @default("{}")
+  updatedAt DateTime @updatedAt
+}
+
+model Alert {
+  id          String    @id
+  userId      String    @default("local")
+  symbol      String
+  condition   String    // "above" | "below" | "crosses"
+  price       Float
+  active      Boolean   @default(true)
+  triggered   Boolean   @default(false)
+  triggeredAt DateTime?
+  channels    String[]  // ["browser", "discord", "sms"]
+  createdAt   DateTime  @default(now())
+
+  @@index([userId, active])
+}
+
+model UserSetting {
+  userId    String   @id
+  layout    Json?
+  prefs     Json     @default("{}")
+  updatedAt DateTime @updatedAt
+}
