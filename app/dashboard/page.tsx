@@ -5,9 +5,8 @@ import {
   FlaskConical,
   FileText,
   GraduationCap,
-  HeartHandshake,
-  Presentation,
   Scale,
+  Sparkle,
   Sparkles,
   Trophy,
   Users2,
@@ -40,8 +39,7 @@ export default async function DashboardPage() {
     labs,
     papers,
     internships,
-    volunteer,
-    conferences,
+    extracurriculars,
     awards,
     leadership,
     profile,
@@ -51,7 +49,6 @@ export default async function DashboardPage() {
     prisma.paper.findMany(),
     prisma.internship.findMany(),
     prisma.volunteer.findMany(),
-    prisma.conference.findMany(),
     prisma.award.findMany(),
     prisma.leadership.findMany(),
     prisma.profile.findFirst(),
@@ -74,10 +71,9 @@ export default async function DashboardPage() {
   const lawCourses = courses.filter((c) => c.category === "Law" || c.category === "Pre-Law").length;
 
   const researchHours = labs.length * 120;
-  const volunteerHours = volunteer.reduce((acc, v) => acc + v.hours, 0);
+  const extracurricularHours = extracurriculars.reduce((acc, v) => acc + v.hours, 0);
   const internshipHours = internships.reduce((acc, i) => acc + i.hours, 0);
 
-  const presentations = conferences.filter((c) => c.posterTitle || c.presentationTitle).length;
   const publications = papers.filter((p) => p.type === "Research" || p.type === "Literature Review").length;
 
   return (
@@ -97,10 +93,8 @@ export default async function DashboardPage() {
         <StatCard label="Psychology Courses" value={psychCourses} icon={BookOpen} />
         <StatCard label="Law / Pre-Law Courses" value={lawCourses} icon={Scale} />
         <StatCard label="Research Hours" value={researchHours} icon={FlaskConical} hint={`${labs.length} active lab${labs.length === 1 ? "" : "s"}`} />
-        <StatCard label="Volunteer Hours" value={volunteerHours} icon={HeartHandshake} />
+        <StatCard label="Extracurricular Hours" value={extracurricularHours} icon={Sparkle} />
         <StatCard label="Internship Hours" value={internshipHours} icon={Briefcase} />
-        <StatCard label="Conferences" value={conferences.length} icon={Presentation} hint={`${presentations} presented`} />
-        <StatCard label="Presentations" value={presentations} icon={Presentation} />
         <StatCard label="Publications" value={publications} icon={FileText} hint="research + reviews" />
         <StatCard label="Awards" value={awards.length} icon={Trophy} />
         <StatCard label="Leadership Roles" value={leadership.length} icon={Users2} hint="club & student government" />

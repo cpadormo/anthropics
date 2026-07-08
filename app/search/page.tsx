@@ -23,14 +23,12 @@ export default async function SearchPage({ searchParams }: { searchParams: { q?:
     );
   }
 
-  const [courses, papers, projects, labs, awards, conferences, books] = await Promise.all([
+  const [courses, papers, projects, labs, awards] = await Promise.all([
     prisma.course.findMany(),
     prisma.paper.findMany(),
     prisma.project.findMany(),
     prisma.researchLab.findMany(),
     prisma.award.findMany(),
-    prisma.conference.findMany(),
-    prisma.book.findMany(),
   ]);
 
   const hits: Hit[] = [];
@@ -63,16 +61,6 @@ export default async function SearchPage({ searchParams }: { searchParams: { q?:
   for (const a of awards) {
     if (matches(q, a.title, a.issuer, a.description, a.category)) {
       hits.push({ href: "/awards", title: a.title, snippet: `${a.issuer} · ${a.date}`, kind: "Award" });
-    }
-  }
-  for (const c of conferences) {
-    if (matches(q, c.name, c.topics, c.posterTitle, c.presentationTitle)) {
-      hits.push({ href: "/conferences", title: c.name, snippet: `${c.location} · ${c.date}`, kind: "Conference" });
-    }
-  }
-  for (const b of books) {
-    if (matches(q, b.title, b.author, b.category, b.takeaways, b.notes)) {
-      hits.push({ href: "/reading", title: b.title, snippet: `${b.author} · ${b.category}`, kind: "Book" });
     }
   }
 

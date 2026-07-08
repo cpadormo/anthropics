@@ -13,7 +13,7 @@ export default async function GalleryPage() {
 
   return (
     <div>
-      <PageHeader title="Media Gallery" description="Conference, lab, presentation, volunteer, and campus photos." />
+      <PageHeader title="Media Gallery" description="Lab, presentation, activity, and campus photos." />
       {items.length === 0 ? (
         <EmptyState
           icon={<ImageIcon className="h-8 w-8 opacity-40" />}

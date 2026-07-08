@@ -1,18 +1,18 @@
 import { prisma } from "@/lib/db/client";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { HeartHandshake } from "lucide-react";
+import { Sparkle } from "lucide-react";
 import { formatDateRange, splitLines } from "@/lib/utils";
 
-export default async function VolunteerPage() {
+export default async function ExtracurricularsPage() {
   const items = await prisma.volunteer.findMany({ orderBy: { createdAt: "desc" } });
   const total = items.reduce((acc, v) => acc + v.hours, 0);
 
   return (
     <div>
-      <PageHeader title="Volunteer Work" description={`${total} total hours across community engagement.`} />
+      <PageHeader title="Extracurriculars" description={`${total} total hours across activities and community engagement.`} />
       {items.length === 0 ? (
-        <EmptyState icon={<HeartHandshake className="h-8 w-8 opacity-40" />} title="No volunteer entries yet" addHref="/admin/volunteer/new" />
+        <EmptyState icon={<Sparkle className="h-8 w-8 opacity-40" />} title="No extracurriculars yet" addHref="/admin/extracurricular/new" />
       ) : (
         <div className="space-y-3">
           {items.map((v) => {
@@ -26,7 +26,8 @@ export default async function VolunteerPage() {
                   </div>
                 </div>
                 <div className="mt-1 text-sm" style={{ color: "var(--text-soft)" }}>
-                  {v.role} · Serves: {v.population}
+                  {v.role}
+                  {v.population ? ` · ${v.population}` : ""}
                 </div>
                 {skills.length > 0 && (
                   <ul className="mt-3 flex flex-wrap gap-1.5">
