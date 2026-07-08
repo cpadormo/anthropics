@@ -77,7 +77,7 @@ export const entities: Record<string, EntityConfig> = {
         name: "category",
         label: "Category",
         type: "select",
-        options: ["Psychology", "Law", "Pre-Law", "Research", "General Education", "Elective", "General"],
+        options: ["Psychology", "Law", "Pre-Law", "Justice Studies", "Honors Section / Seminar", "Research", "General Education", "Elective", "General"],
         required: true,
       },
       {
