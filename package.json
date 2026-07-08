@@ -1,0 +1,15 @@
+{
+  "name": "anthropics-portfolio-root",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Root shim so Vercel detects Next.js and builds academic-portfolio/",
+  "scripts": {
+    "build": "cd academic-portfolio && npm install --no-audit --no-fund && npm run build",
+    "start": "cd academic-portfolio && npm start"
+  },
+  "dependencies": {
+    "next": "^14.2.18",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}
