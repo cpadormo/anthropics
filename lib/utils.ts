@@ -33,8 +33,8 @@ export function formatDateRange(start: string | null | undefined, end: string | 
 
 export const SEMESTER_ORDER: Record<string, number> = {
   Fall: 1,
-  Spring: 2,
-  Summer: 3,
+  Summer: 2,
+  Spring: 3,
   Winter: 4,
 };
 
