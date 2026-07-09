@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { TopBar } from "@/components/layout/TopBar";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "Academic Portfolio",
@@ -23,7 +24,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const isAdmin = await requireAdmin();
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
@@ -31,7 +33,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <div className="flex min-h-screen">
             <Sidebar />
             <div className="flex flex-1 flex-col">
-              <TopBar />
+              <TopBar isAdmin={isAdmin} />
               <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 lg:px-8 lg:py-8">{children}</main>
               <footer
                 className="border-t px-4 py-6 text-center text-xs lg:px-8"

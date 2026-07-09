@@ -8,7 +8,7 @@ import { useTheme } from "./ThemeProvider";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { navItems } from "@/lib/nav";
 
-export function TopBar() {
+export function TopBar({ isAdmin = false }: { isAdmin?: boolean }) {
   const { mode, toggle } = useTheme();
   const router = useRouter();
   const [q, setQ] = useState("");
@@ -46,7 +46,7 @@ export function TopBar() {
           />
         </form>
 
-        <ThemeSwitcher />
+        {isAdmin && <ThemeSwitcher />}
 
         <button type="button" onClick={toggle} className="btn-ghost" aria-label="Toggle light/dark">
           {mode === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
