@@ -48,10 +48,11 @@ body {
     @apply inline-flex items-center justify-center gap-2 rounded-md px-3.5 py-2 text-sm font-medium transition-colors;
   }
   .btn-primary {
-    @apply btn bg-navy-800 text-white hover:bg-navy-700;
+    @apply btn text-white;
+    background: var(--accent);
   }
-  .dark .btn-primary {
-    @apply bg-navy-600 hover:bg-navy-500;
+  .btn-primary:hover {
+    filter: brightness(0.92);
   }
   .btn-ghost {
     @apply btn border text-[color:var(--text)] hover:bg-[color:var(--accent-soft)];

@@ -5,10 +5,11 @@ import { useRouter } from "next/navigation";
 import { Menu, Moon, Search, Sun } from "lucide-react";
 import { useState } from "react";
 import { useTheme } from "./ThemeProvider";
+import { ThemeSwitcher } from "./ThemeSwitcher";
 import { navItems } from "@/lib/nav";
 
 export function TopBar() {
-  const { theme, toggle } = useTheme();
+  const { mode, toggle } = useTheme();
   const router = useRouter();
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
@@ -45,8 +46,10 @@ export function TopBar() {
           />
         </form>
 
-        <button type="button" onClick={toggle} className="btn-ghost" aria-label="Toggle theme">
-          {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        <ThemeSwitcher />
+
+        <button type="button" onClick={toggle} className="btn-ghost" aria-label="Toggle light/dark">
+          {mode === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </button>
       </div>
 

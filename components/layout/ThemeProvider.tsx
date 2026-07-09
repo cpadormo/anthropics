@@ -1,30 +1,63 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { DEFAULT_THEME_ID, findTheme, themes, type Theme } from "@/lib/themes";
 
-type Theme = "light" | "dark";
+type Mode = "light" | "dark";
 
-const ThemeContext = createContext<{
-  theme: Theme;
+type ThemeContextValue = {
+  mode: Mode;
   toggle: () => void;
-}>({ theme: "light", toggle: () => {} });
+  themeId: string;
+  setThemeId: (id: string) => void;
+  themes: Theme[];
+  currentTheme: Theme;
+};
+
+const ThemeContext = createContext<ThemeContextValue>({
+  mode: "light",
+  toggle: () => {},
+  themeId: DEFAULT_THEME_ID,
+  setThemeId: () => {},
+  themes,
+  currentTheme: findTheme(DEFAULT_THEME_ID),
+});
+
+function applyTheme(themeId: string, mode: Mode) {
+  const theme = findTheme(themeId);
+  const c = mode === "dark" ? theme.dark : theme.light;
+  const root = document.documentElement;
+  root.style.setProperty("--bg", c.bg);
+  root.style.setProperty("--surface", c.surface);
+  root.style.setProperty("--border", c.border);
+  root.style.setProperty("--text", c.text);
+  root.style.setProperty("--text-soft", c.textSoft);
+  root.style.setProperty("--accent", c.accent);
+  root.style.setProperty("--accent-soft", c.accentSoft);
+}
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [mode, setMode] = useState<Mode>("light");
+  const [themeId, setThemeIdState] = useState<string>(DEFAULT_THEME_ID);
 
   useEffect(() => {
-    const stored = (typeof window !== "undefined" && (localStorage.getItem("ap-theme") as Theme | null)) || null;
+    const storedMode = (typeof window !== "undefined" && (localStorage.getItem("ap-theme") as Mode | null)) || null;
+    const storedTheme =
+      (typeof window !== "undefined" && localStorage.getItem("ap-theme-id")) || DEFAULT_THEME_ID;
     const prefersDark =
       typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const initial = stored ?? (prefersDark ? "dark" : "light");
-    setTheme(initial);
-    document.documentElement.classList.toggle("dark", initial === "dark");
+    const initialMode: Mode = storedMode ?? (prefersDark ? "dark" : "light");
+    setMode(initialMode);
+    setThemeIdState(storedTheme);
+    document.documentElement.classList.toggle("dark", initialMode === "dark");
+    applyTheme(storedTheme, initialMode);
   }, []);
 
   const toggle = () => {
-    setTheme((prev) => {
+    setMode((prev) => {
       const next = prev === "dark" ? "light" : "dark";
       document.documentElement.classList.toggle("dark", next === "dark");
+      applyTheme(themeId, next);
       try {
         localStorage.setItem("ap-theme", next);
       } catch {}
@@ -32,7 +65,21 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  return <ThemeContext.Provider value={{ theme, toggle }}>{children}</ThemeContext.Provider>;
+  const setThemeId = (id: string) => {
+    setThemeIdState(id);
+    applyTheme(id, mode);
+    try {
+      localStorage.setItem("ap-theme-id", id);
+    } catch {}
+  };
+
+  return (
+    <ThemeContext.Provider
+      value={{ mode, toggle, themeId, setThemeId, themes, currentTheme: findTheme(themeId) }}
+    >
+      {children}
+    </ThemeContext.Provider>
+  );
 }
 
 export function useTheme() {
