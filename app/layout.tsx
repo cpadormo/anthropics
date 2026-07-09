@@ -37,7 +37,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 className="border-t px-4 py-6 text-center text-xs lg:px-8"
                 style={{ borderColor: "var(--border)", color: "var(--text-soft)" }}
               >
-                Built for graduate-school readiness · Update through the Admin panel
+                🎀 Built for graduate-school readiness · Update through the Admin panel 🎀
               </footer>
             </div>
           </div>

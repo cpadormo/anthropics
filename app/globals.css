@@ -1,25 +1,27 @@
+@import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --bg: #f7f9fc;
+  --bg: #fef8fa;
   --surface: #ffffff;
-  --border: #e5eaf2;
-  --text: #0f1f3a;
-  --text-soft: #475569;
-  --accent: #22406d;
-  --accent-soft: #dbe5f2;
+  --border: #ffd1e0;
+  --text: #62163c;
+  --text-soft: #96204a;
+  --accent: #ec2f6a;
+  --accent-soft: #ffe4ec;
 }
 
 .dark {
-  --bg: #070f1f;
-  --surface: #0f1f3a;
-  --border: #1a3155;
-  --text: #f0f4fa;
-  --text-soft: #88a7d2;
-  --accent: #5b85bf;
-  --accent-soft: #1a3155;
+  --bg: #2a0a1a;
+  --surface: #3a0d25;
+  --border: #62163c;
+  --text: #fff5f8;
+  --text-soft: #ffc9d9;
+  --accent: #ff9dbb;
+  --accent-soft: #62163c;
 }
 
 html,
@@ -32,42 +34,48 @@ body {
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-image:
+    radial-gradient(circle at 15% 10%, rgba(255, 157, 187, 0.18) 0, transparent 40%),
+    radial-gradient(circle at 85% 90%, rgba(255, 111, 160, 0.14) 0, transparent 45%);
+  background-attachment: fixed;
 }
 
 @layer components {
   .card {
-    @apply rounded-xl border bg-[var(--surface)] shadow-card transition-shadow;
+    @apply rounded-2xl border bg-[var(--surface)] shadow-card transition-all;
     border-color: var(--border);
   }
   .card:hover {
     box-shadow:
-      0 2px 4px rgba(15, 31, 58, 0.05),
-      0 8px 24px rgba(15, 31, 58, 0.08);
+      0 2px 6px rgba(236, 47, 106, 0.08),
+      0 10px 30px rgba(236, 47, 106, 0.14);
+    transform: translateY(-1px);
   }
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-md px-3.5 py-2 text-sm font-medium transition-colors;
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors;
   }
   .btn-primary {
-    @apply btn bg-navy-800 text-white hover:bg-navy-700;
+    @apply btn bg-navy-500 text-white hover:bg-navy-600;
+    box-shadow: 0 4px 14px rgba(255, 71, 133, 0.4);
   }
   .dark .btn-primary {
-    @apply bg-navy-600 hover:bg-navy-500;
+    @apply bg-navy-400 hover:bg-navy-300;
   }
   .btn-ghost {
     @apply btn border text-[color:var(--text)] hover:bg-[color:var(--accent-soft)];
     border-color: var(--border);
   }
   .input {
-    @apply w-full rounded-md border bg-[var(--surface)] px-3 py-2 text-sm outline-none transition focus:ring-2 focus:ring-navy-500/40;
+    @apply w-full rounded-xl border bg-[var(--surface)] px-3 py-2 text-sm outline-none transition focus:ring-2 focus:ring-navy-400/50;
     border-color: var(--border);
     color: var(--text);
   }
   .label {
-    @apply mb-1 block text-xs font-medium uppercase tracking-wide;
+    @apply mb-1 block text-xs font-semibold uppercase tracking-wide;
     color: var(--text-soft);
   }
   .nav-link {
-    @apply flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors;
+    @apply flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors;
     color: var(--text-soft);
   }
   .nav-link:hover {
@@ -79,12 +87,13 @@ body {
     color: var(--text);
   }
   .badge {
-    @apply inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium;
+    @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold;
     border-color: var(--border);
     color: var(--text-soft);
+    background: var(--surface);
   }
   .section-title {
-    @apply text-2xl font-semibold tracking-tight;
+    @apply text-2xl font-bold tracking-tight;
     color: var(--text);
   }
   .section-sub {
