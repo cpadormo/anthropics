@@ -98,6 +98,7 @@ model Internship {
   organization    String
   supervisor      String
   role            String   @default("")
+  type            String   @default("Internship")
   startDate       String   @default("")
   endDate         String?
   responsibilities String  @default("")

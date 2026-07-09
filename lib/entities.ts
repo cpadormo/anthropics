@@ -166,7 +166,16 @@ export const entities: Record<string, EntityConfig> = {
     prismaModel: "internship",
     fields: [
       { name: "organization", label: "Title / organization", type: "text", required: true, placeholder: "e.g. County Public Defender's Office" },
+      {
+        name: "type",
+        label: "Type",
+        type: "select",
+        options: ["Internship", "Professional Work"],
+        required: true,
+        help: "Professional Work = anything tied to your majors or intended career path.",
+      },
       { name: "supervisor", label: "Supervisor name", type: "text", required: true },
+      { name: "startDate", label: "When (semester or date)", type: "text", placeholder: "e.g. Summer 2026", help: "Used to sort — most recent shows first." },
       { name: "hours", label: "Total hours", type: "number", required: true },
       { name: "scheduleUrl", label: "Schedule / attachment link (optional)", type: "url", help: linkHelp },
       { name: "reflection", label: "Reflection (optional)", type: "textarea" },
@@ -174,8 +183,8 @@ export const entities: Record<string, EntityConfig> = {
   },
   work: {
     key: "work",
-    label: "Work experience",
-    plural: "Work experience",
+    label: "Other work experience",
+    plural: "Other Work Experiences",
     listUrl: "/work",
     prismaModel: "workExperience",
     fields: [

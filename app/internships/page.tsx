@@ -2,26 +2,37 @@ import { prisma } from "@/lib/db/client";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Briefcase, ExternalLink } from "lucide-react";
+import { dateStringToScore } from "@/lib/utils";
 
 export default async function InternshipsPage() {
-  const items = await prisma.internship.findMany({ orderBy: { createdAt: "desc" } });
+  const rows = await prisma.internship.findMany();
+  const items = [...rows].sort((a, b) => {
+    const scoreDiff = dateStringToScore(b.startDate) - dateStringToScore(a.startDate);
+    if (scoreDiff !== 0) return scoreDiff;
+    return b.createdAt.getTime() - a.createdAt.getTime();
+  });
 
   return (
     <div>
-      <PageHeader title="Internships / Professional Work" description="Internships and professional roles with supervisor, hours, and reflection." />
+      <PageHeader
+        title="Internships / Professional Work"
+        description="Internships and career-relevant professional roles with supervisor, hours, and reflection. Most recent first."
+      />
       {items.length === 0 ? (
-        <EmptyState icon={<Briefcase className="h-8 w-8 opacity-40" />} title="No internships yet" addHref="/admin/internship/new" />
+        <EmptyState icon={<Briefcase className="h-8 w-8 opacity-40" />} title="No entries yet" addHref="/admin/internship/new" />
       ) : (
         <div className="space-y-4">
           {items.map((i) => (
             <article key={i.id} className="card p-6">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h2 className="text-lg font-semibold">{i.organization}</h2>
-                {i.hours > 0 && (
-                  <div className="text-xs" style={{ color: "var(--text-soft)" }}>
-                    {i.hours} hours
-                  </div>
-                )}
+                <div className="flex items-baseline gap-2">
+                  <h2 className="text-lg font-semibold">{i.organization}</h2>
+                  <span className="badge">{i.type || "Internship"}</span>
+                </div>
+                <div className="text-right text-xs" style={{ color: "var(--text-soft)" }}>
+                  {i.startDate && <div>{i.startDate}</div>}
+                  {i.hours > 0 && <div>{i.hours} hours</div>}
+                </div>
               </div>
               <div className="mt-1 text-sm" style={{ color: "var(--text-soft)" }}>
                 Supervisor: {i.supervisor}

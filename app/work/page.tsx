@@ -2,14 +2,19 @@ import { prisma } from "@/lib/db/client";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Briefcase } from "lucide-react";
-import { formatDateRange, splitLines } from "@/lib/utils";
+import { dateStringToScore, formatDateRange, splitLines } from "@/lib/utils";
 
 export default async function WorkExperiencePage() {
-  const items = await prisma.workExperience.findMany({ orderBy: { createdAt: "desc" } });
+  const rows = await prisma.workExperience.findMany();
+  const items = [...rows].sort((a, b) => {
+    const scoreDiff = dateStringToScore(b.startDate) - dateStringToScore(a.startDate);
+    if (scoreDiff !== 0) return scoreDiff;
+    return b.createdAt.getTime() - a.createdAt.getTime();
+  });
 
   return (
     <div>
-      <PageHeader title="Work Experience" description="Paid positions, part-time work, tutoring, and other employment." />
+      <PageHeader title="Other Work Experiences" description="Paid positions, part-time work, tutoring, and other employment. Most recent first." />
       {items.length === 0 ? (
         <EmptyState
           icon={<Briefcase className="h-8 w-8 opacity-40" />}
