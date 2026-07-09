@@ -3,13 +3,20 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { CourseCard } from "@/components/widgets/CourseCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { BookOpen } from "lucide-react";
+import { semesterRank } from "@/lib/utils";
 
 export default async function CourseworkPage() {
-  const courses = await prisma.course.findMany({
-    orderBy: [{ year: "desc" }, { semester: "asc" }, { code: "asc" }],
+  const courses = await prisma.course.findMany();
+
+  const sorted = [...courses].sort((a, b) => {
+    const yearDiff = b.year - a.year;
+    if (yearDiff !== 0) return yearDiff;
+    const semDiff = semesterRank(a.semester) - semesterRank(b.semester);
+    if (semDiff !== 0) return semDiff;
+    return a.code.localeCompare(b.code);
   });
 
-  const grouped = courses.reduce<Record<string, typeof courses>>((acc, c) => {
+  const grouped = sorted.reduce<Record<string, typeof sorted>>((acc, c) => {
     const key = `${c.semester} ${c.year}`;
     acc[key] = acc[key] ?? [];
     acc[key].push(c);

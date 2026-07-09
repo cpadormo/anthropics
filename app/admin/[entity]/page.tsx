@@ -32,7 +32,8 @@ export default async function EntityListPage({ params }: { params: { entity: str
   const subtitleFor = (row: Record<string, unknown>) => {
     if (entity.key === "course") return `${row.semester} ${row.year} · ${row.instructor}`;
     if (entity.key === "paper") return `${row.type} · ${row.date}`;
-    if (entity.key === "internship" || entity.key === "extracurricular" || entity.key === "leadership" || entity.key === "work") return `${row.role ?? row.position} · ${row.startDate}`;
+    if (entity.key === "internship") return `${row.supervisor ?? ""}${row.hours ? ` · ${row.hours} hrs` : ""}`;
+    if (entity.key === "extracurricular" || entity.key === "leadership" || entity.key === "work") return `${row.role ?? row.position ?? ""} · ${row.startDate ?? ""}`;
     if (entity.key === "award") return `${row.issuer} · ${row.date}`;
     if (entity.key === "cert") return `${row.issuer} · ${row.date}`;
     if (entity.key === "timeline") return `${row.year} · ${row.date}`;

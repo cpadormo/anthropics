@@ -30,3 +30,21 @@ export function formatDateRange(start: string | null | undefined, end: string | 
   if (!e) return `${s} – Present`;
   return `${s} – ${e}`;
 }
+
+export const SEMESTER_ORDER: Record<string, number> = {
+  Fall: 1,
+  Spring: 2,
+  Summer: 3,
+  Winter: 4,
+};
+
+export function semesterRank(sem: string | null | undefined): number {
+  if (!sem) return 99;
+  return SEMESTER_ORDER[sem.trim()] ?? 99;
+}
+
+export function compareCoursesRecent<T extends { year: number; semester: string }>(a: T, b: T) {
+  const yearDiff = b.year - a.year;
+  if (yearDiff !== 0) return yearDiff;
+  return semesterRank(a.semester) - semesterRank(b.semester);
+}

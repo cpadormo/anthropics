@@ -14,6 +14,7 @@ import {
 import { prisma } from "@/lib/db/client";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StatCard } from "@/components/ui/StatCard";
+import { compareCoursesRecent } from "@/lib/utils";
 
 function gradeToGpa(grade: string | null | undefined): number | null {
   if (!grade) return null;
@@ -103,17 +104,21 @@ export default async function DashboardPage() {
       <div className="mt-8 grid gap-4 lg:grid-cols-3">
         <div className="card p-6 lg:col-span-2">
           <h2 className="text-base font-semibold">Most recent course</h2>
-          {courses[0] ? (
-            <div className="mt-3">
-              <div className="text-sm font-medium">
-                {courses[0].code} · {courses[0].title}
+          {(() => {
+            const recent = [...courses].sort(compareCoursesRecent)[0];
+            return recent ? (
+              <div className="mt-3">
+                <div className="text-sm font-medium">
+                  {recent.code} · {recent.title}
+                </div>
+                <div className="mt-1 text-xs" style={{ color: "var(--text-soft)" }}>
+                  {recent.semester} {recent.year} · {recent.instructor}
+                </div>
+                <p className="mt-3 line-clamp-3 text-sm">{recent.reflection}</p>
               </div>
-              <div className="mt-1 text-xs" style={{ color: "var(--text-soft)" }}>
-                {courses[0].semester} {courses[0].year} · {courses[0].instructor}
-              </div>
-              <p className="mt-3 line-clamp-3 text-sm">{courses[0].reflection}</p>
-            </div>
-          ) : (
+            ) : null;
+          })()}
+          {courses.length === 0 && (
             <p className="mt-3 text-sm" style={{ color: "var(--text-soft)" }}>
               Add coursework through the admin panel.
             </p>

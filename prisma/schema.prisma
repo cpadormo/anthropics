@@ -97,15 +97,16 @@ model Internship {
   id              String   @id @default(cuid())
   organization    String
   supervisor      String
-  role            String
-  startDate       String
+  role            String   @default("")
+  startDate       String   @default("")
   endDate         String?
-  responsibilities String
+  responsibilities String  @default("")
   cases           String   @default("")
   skills          String   @default("")
-  reflection      String
+  reflection      String   @default("")
   hours           Int      @default(0)
   recLetterUrl    String?
+  scheduleUrl     String?
   photos          String   @default("[]")
   createdAt       DateTime @default(now())
 }
