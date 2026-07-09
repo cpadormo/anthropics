@@ -10,7 +10,7 @@ export function Sidebar() {
   return (
     <aside className="hidden w-64 shrink-0 border-r p-4 lg:block" style={{ borderColor: "var(--border)" }}>
       <Link href="/" className="mb-6 flex items-center gap-2 px-2">
-        <div className="grid h-9 w-9 place-items-center rounded-full bg-navy-100 text-base">🎀</div>
+        <div className="grid h-8 w-8 place-items-center rounded-md bg-navy-800 text-sm font-bold text-white">AP</div>
         <div className="text-sm">
           <div className="font-semibold leading-tight">Academic Portfolio</div>
           <div className="text-xs" style={{ color: "var(--text-soft)" }}>
