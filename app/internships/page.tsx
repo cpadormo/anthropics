@@ -8,7 +8,7 @@ export default async function InternshipsPage() {
 
   return (
     <div>
-      <PageHeader title="Internship Experience" description="Internships with supervisor, hours, and reflection." />
+      <PageHeader title="Internships / Professional Work" description="Internships and professional roles with supervisor, hours, and reflection." />
       {items.length === 0 ? (
         <EmptyState icon={<Briefcase className="h-8 w-8 opacity-40" />} title="No internships yet" addHref="/admin/internship/new" />
       ) : (

@@ -160,8 +160,8 @@ export const entities: Record<string, EntityConfig> = {
   },
   internship: {
     key: "internship",
-    label: "Internship",
-    plural: "Internships",
+    label: "Internship / Professional work",
+    plural: "Internships / Professional Work",
     listUrl: "/internships",
     prismaModel: "internship",
     fields: [

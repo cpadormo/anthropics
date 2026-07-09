@@ -39,7 +39,7 @@ export const navItems: NavItem[] = [
   { href: "/writing", label: "Writing", icon: FileText, section: "Academics" },
 
   { href: "/work", label: "Work Experience", icon: Briefcase, section: "Professional" },
-  { href: "/internships", label: "Internships", icon: Briefcase, section: "Professional" },
+  { href: "/internships", label: "Internships / Professional Work", icon: Briefcase, section: "Professional" },
   { href: "/extracurriculars", label: "Extracurriculars", icon: Sparkle, section: "Professional" },
   { href: "/leadership", label: "Leadership", icon: Users2, section: "Professional" },
 
