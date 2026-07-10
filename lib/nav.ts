@@ -38,8 +38,8 @@ export const navItems: NavItem[] = [
   { href: "/projects", label: "Projects", icon: FolderKanban, section: "Academics" },
   { href: "/writing", label: "Writing", icon: FileText, section: "Academics" },
 
-  { href: "/work", label: "Other Work Experiences", icon: Briefcase, section: "Professional" },
   { href: "/internships", label: "Internships / Professional Work", icon: Briefcase, section: "Professional" },
+  { href: "/work", label: "Other Work Experiences", icon: Briefcase, section: "Professional" },
   { href: "/extracurriculars", label: "Extracurriculars", icon: Sparkle, section: "Professional" },
   { href: "/leadership", label: "Leadership", icon: Users2, section: "Professional" },
 
