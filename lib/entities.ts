@@ -1,4 +1,4 @@
-export type FieldType = "text" | "textarea" | "number" | "url" | "select" | "file" | "json-array";
+export type FieldType = "text" | "textarea" | "number" | "url" | "select" | "file" | "json-array" | "pdf";
 
 export type EntityField = {
   name: string;
@@ -60,8 +60,8 @@ export const entities: Record<string, EntityConfig> = {
       { name: "expectedGrad", label: "Expected Graduation", type: "text" },
       { name: "linkedinUrl", label: "LinkedIn URL", type: "url" },
       { name: "githubUrl", label: "GitHub URL", type: "url" },
-      { name: "resumePdfUrl", label: "Resume link", type: "url", help: linkHelp },
-      { name: "cvPdfUrl", label: "CV link", type: "url", help: linkHelp },
+      { name: "resumePdfUrl", label: "Resume PDF", type: "pdf", help: "Upload your resume. PDF only." },
+      { name: "cvPdfUrl", label: "CV PDF", type: "pdf", help: "Upload your CV. PDF only." },
     ],
   },
   course: {
@@ -96,7 +96,7 @@ export const entities: Record<string, EntityConfig> = {
       { name: "papers", label: "Research papers written", type: "textarea", help: linesHelp },
       { name: "finalGrade", label: "Final grade", type: "text", placeholder: "A" },
       { name: "reflection", label: "Reflection", type: "textarea", required: true },
-      { name: "syllabusUrl", label: "Syllabus link", type: "url", help: linkHelp },
+      { name: "syllabusUrl", label: "Syllabus PDF", type: "pdf", help: "Upload a PDF of the syllabus. Optional." },
     ],
   },
   lab: {
@@ -155,7 +155,7 @@ export const entities: Record<string, EntityConfig> = {
       { name: "abstract", label: "Abstract", type: "textarea", required: true },
       { name: "keywords", label: "Keywords", type: "textarea", help: "Comma- or newline-separated." },
       { name: "grade", label: "Grade (optional)", type: "text" },
-      { name: "pdfUrl", label: "PDF link", type: "url", help: linkHelp },
+      { name: "pdfUrl", label: "Paper PDF", type: "pdf", help: "Upload the paper as a PDF. Optional." },
     ],
   },
   internship: {
@@ -177,7 +177,7 @@ export const entities: Record<string, EntityConfig> = {
       { name: "supervisor", label: "Supervisor name", type: "text", required: true },
       { name: "startDate", label: "When (semester or date)", type: "text", placeholder: "e.g. Summer 2026", help: "Used to sort — most recent shows first." },
       { name: "hours", label: "Total hours", type: "number", required: true },
-      { name: "scheduleUrl", label: "Schedule / attachment link (optional)", type: "url", help: linkHelp },
+      { name: "scheduleUrl", label: "Schedule / attachment PDF (optional)", type: "pdf", help: "Upload a PDF (schedule, timesheet, offer letter, etc.)." },
       { name: "reflection", label: "Reflection (optional)", type: "textarea" },
     ],
   },

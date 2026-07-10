@@ -13,8 +13,8 @@ export default async function ResumePage() {
       />
 
       <div className="grid gap-4 md:grid-cols-2">
-        <ResumeCard label="Academic Resume" url={profile?.resumePdfUrl} />
-        <ResumeCard label="Curriculum Vitae" url={profile?.cvPdfUrl} />
+        <ResumeCard label="Academic Resume" url={profile?.resumePdfUrl} filename="resume.pdf" />
+        <ResumeCard label="Curriculum Vitae" url={profile?.cvPdfUrl} filename="cv.pdf" />
       </div>
 
       {(profile?.resumePdfUrl || profile?.cvPdfUrl) && (
@@ -31,7 +31,7 @@ export default async function ResumePage() {
   );
 }
 
-function ResumeCard({ label, url }: { label: string; url?: string | null }) {
+function ResumeCard({ label, url, filename }: { label: string; url?: string | null; filename: string }) {
   return (
     <div className="card p-6">
       <div className="flex items-center gap-3">
@@ -46,7 +46,7 @@ function ResumeCard({ label, url }: { label: string; url?: string | null }) {
         </div>
       </div>
       {url && (
-        <a href={url} target="_blank" rel="noreferrer" className="btn-primary mt-4">
+        <a href={url} download={filename} target="_blank" rel="noreferrer" className="btn-primary mt-4">
           <Download className="h-4 w-4" /> Download
         </a>
       )}

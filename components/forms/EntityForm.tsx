@@ -13,12 +13,12 @@ export function EntityForm({
   action: (formData: FormData) => Promise<void>;
 }) {
   return (
-    <form action={action} className="space-y-4">
+    <form action={action} encType="multipart/form-data" className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2">
         {entity.fields.map((f) => {
           const value = initial?.[f.name];
           const stringValue = value == null ? "" : String(value);
-          const spanFull = f.type === "textarea";
+          const spanFull = f.type === "textarea" || f.type === "pdf";
           return (
             <div key={f.name} className={spanFull ? "md:col-span-2" : undefined}>
               <label className="label" htmlFor={f.name}>
@@ -44,6 +44,21 @@ export function EntityForm({
                     </option>
                   ))}
                 </select>
+              ) : f.type === "pdf" ? (
+                <>
+                  <input
+                    id={f.name}
+                    name={f.name}
+                    type="file"
+                    accept="application/pdf"
+                    className="input file:mr-3 file:rounded-md file:border-0 file:bg-[color:var(--accent-soft)] file:px-3 file:py-1 file:text-sm file:font-medium file:text-[color:var(--text)] hover:file:cursor-pointer"
+                  />
+                  {stringValue && (
+                    <p className="mt-1 text-xs" style={{ color: "var(--text-soft)" }}>
+                      ✓ PDF already attached. Choose a new file to replace it, or leave blank to keep the current one.
+                    </p>
+                  )}
+                </>
               ) : (
                 <input
                   id={f.name}

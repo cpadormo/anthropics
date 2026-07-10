@@ -111,6 +111,7 @@ export default async function InternshipsPage({ searchParams }: { searchParams: 
               {i.scheduleUrl && (
                 <a
                   href={i.scheduleUrl}
+                  download={`${i.organization || "attachment"}.pdf`}
                   target="_blank"
                   rel="noreferrer"
                   className="btn-ghost mt-4"

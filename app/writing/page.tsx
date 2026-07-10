@@ -62,7 +62,13 @@ export default async function WritingPage() {
                         </ul>
                       )}
                       {p.pdfUrl && (
-                        <a className="btn-ghost mt-4" href={p.pdfUrl} target="_blank" rel="noreferrer">
+                        <a
+                          className="btn-ghost mt-4"
+                          href={p.pdfUrl}
+                          download={`${p.title || "paper"}.pdf`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
                           <Download className="h-4 w-4" /> Download PDF
                         </a>
                       )}

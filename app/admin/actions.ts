@@ -24,10 +24,18 @@ export async function logoutAction() {
   redirect("/admin/login");
 }
 
-function buildData(entity: EntityConfig, formData: FormData) {
+async function buildData(entity: EntityConfig, formData: FormData) {
   const data: Record<string, unknown> = {};
   for (const field of entity.fields) {
     const raw = formData.get(field.name);
+    if (field.type === "pdf") {
+      const file = raw as File | null;
+      if (file && typeof file === "object" && "arrayBuffer" in file && file.size > 0) {
+        const buffer = Buffer.from(await file.arrayBuffer());
+        data[field.name] = `data:application/pdf;base64,${buffer.toString("base64")}`;
+      }
+      continue;
+    }
     if (raw == null) continue;
     const value = String(raw).trim();
     if (value === "" && !field.required) continue;
@@ -46,7 +54,7 @@ export async function upsertAction(entityKey: string, id: string | null, formDat
 
   const entity = entities[entityKey];
   if (!entity) throw new Error(`Unknown entity: ${entityKey}`);
-  const data = buildData(entity, formData);
+  const data = await buildData(entity, formData);
 
   const model = (prisma as unknown as Record<string, { create: Function; update: Function; upsert: Function }>)[
     entity.prismaModel
