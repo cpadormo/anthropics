@@ -136,7 +136,7 @@ model Volunteer {
   hours        Int      @default(0)
   population   String?
   skills       String   @default("")
-  reflection   String
+  reflection   String   @default("")
   createdAt    DateTime @default(now())
 }
 
