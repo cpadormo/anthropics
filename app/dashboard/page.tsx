@@ -79,7 +79,6 @@ export default async function DashboardPage() {
   const honorsCourses = courses.filter((c) => c.category === "Honors Section / Seminar").length;
 
   const researchHours = labs.length * 120;
-  const extracurricularHours = extracurriculars.reduce((acc, v) => acc + v.hours, 0);
 
   const internshipRows = internships.filter((i) => (i.type || "Internship") === "Internship");
   const professionalWorkRows = internships.filter((i) => i.type === "Professional Work");
@@ -140,7 +139,12 @@ export default async function DashboardPage() {
           icon={Briefcase}
           hint={workExperiences.length === 1 ? "position" : "positions"}
         />
-        <StatCard label="Extracurricular Hours" value={extracurricularHours} icon={Sparkle} hint={`${extracurriculars.length} activit${extracurriculars.length === 1 ? "y" : "ies"}`} />
+        <StatCard
+          label="Extracurriculars"
+          value={extracurriculars.length}
+          icon={Sparkle}
+          hint={extracurriculars.length === 1 ? "activity" : "activities"}
+        />
       </div>
 
       <h2 className="mb-3 mt-8 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-soft)" }}>

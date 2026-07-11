@@ -217,7 +217,6 @@ export const entities: Record<string, EntityConfig> = {
       { name: "role", label: "Role", type: "text", required: true },
       { name: "startDate", label: "Start date", type: "text", required: true },
       { name: "endDate", label: "End date", type: "text" },
-      { name: "hours", label: "Total hours (optional)", type: "number" },
       { name: "population", label: "Focus / population", type: "text" },
       { name: "skills", label: "Skills developed", type: "textarea", help: linesHelp },
       { name: "reflection", label: "Reflection (optional)", type: "textarea" },

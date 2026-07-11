@@ -6,13 +6,12 @@ import { formatDateRange, splitLines } from "@/lib/utils";
 
 export default async function ExtracurricularsPage() {
   const items = await prisma.volunteer.findMany({ orderBy: { createdAt: "desc" } });
-  const total = items.reduce((acc, v) => acc + v.hours, 0);
 
   return (
     <div>
       <PageHeader
         title="Extracurriculars"
-        description={total > 0 ? `${total} total hours across activities and community engagement.` : "Activities, clubs, and community engagement."}
+        description="Activities, clubs, and community engagement."
       />
       {items.length === 0 ? (
         <EmptyState icon={<Sparkle className="h-8 w-8 opacity-40" />} title="No extracurriculars yet" addHref="/admin/extracurricular/new" />
@@ -27,7 +26,6 @@ export default async function ExtracurricularsPage() {
                   <h2 className="text-base font-semibold">{v.organization}</h2>
                   <div className="text-xs" style={{ color: "var(--text-soft)" }}>
                     {dateRange}
-                    {v.hours > 0 ? `${dateRange ? " · " : ""}${v.hours} hours` : ""}
                   </div>
                 </div>
                 <div className="mt-1 text-sm" style={{ color: "var(--text-soft)" }}>
