@@ -5,6 +5,7 @@ import {
   Briefcase,
   FileText,
   FlaskConical,
+  FolderKanban,
   Gavel,
   GraduationCap,
   Scale,
@@ -47,6 +48,7 @@ export default async function DashboardPage() {
     workExperiences,
     awards,
     leadership,
+    projectCount,
     profile,
   ] = await Promise.all([
     prisma.course.findMany(),
@@ -57,6 +59,7 @@ export default async function DashboardPage() {
     prisma.workExperience.findMany(),
     prisma.award.findMany(),
     prisma.leadership.findMany(),
+    prisma.project.count(),
     prisma.profile.findFirst(),
   ]);
 
@@ -150,7 +153,8 @@ export default async function DashboardPage() {
       <h2 className="mb-3 mt-8 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-soft)" }}>
         Growth
       </h2>
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <StatCard label="Projects" value={projectCount} icon={FolderKanban} hint="course + self-directed" />
         <StatCard label="Publications" value={publications} icon={FileText} hint="research + reviews" />
         <StatCard label="Awards" value={awards.length} icon={Trophy} />
         <StatCard label="Leadership Roles" value={leadership.length} icon={Users2} hint="clubs & student gov" />

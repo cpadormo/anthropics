@@ -12,7 +12,6 @@ import {
   FileBadge,
   Sparkles,
   Clock,
-  Target,
   ImageIcon,
   Mail,
   Home,
@@ -46,8 +45,6 @@ export const navItems: NavItem[] = [
   { href: "/certifications", label: "Certifications", icon: BadgeCheck, section: "Credentials" },
   { href: "/awards", label: "Awards", icon: Trophy, section: "Credentials" },
 
-  { href: "/skills", label: "Skills", icon: Sparkles, section: "Profile" },
-  { href: "/goals", label: "Goals", icon: Target, section: "Profile" },
   { href: "/gallery", label: "Gallery", icon: ImageIcon, section: "Profile" },
   { href: "/resume", label: "Resume", icon: FileBadge, section: "Profile" },
   { href: "/contact", label: "Contact", icon: Mail, section: "Profile" },
