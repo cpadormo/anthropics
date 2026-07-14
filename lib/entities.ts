@@ -1,4 +1,4 @@
-export type FieldType = "text" | "textarea" | "number" | "url" | "select" | "file" | "json-array" | "pdf";
+export type FieldType = "text" | "textarea" | "number" | "url" | "select" | "file" | "json-array" | "pdf" | "media";
 
 export type EntityField = {
   name: string;
@@ -314,7 +314,7 @@ export const entities: Record<string, EntityConfig> = {
         required: true,
       },
       { name: "date", label: "Date", type: "text", required: true },
-      { name: "imageUrl", label: "Image URL", type: "url", required: true, help: "Paste a direct image URL (e.g. Imgur, Google Photos share, or any public image link)." },
+      { name: "imageUrl", label: "Upload file", type: "media", required: true, help: "Photo, screenshot, or PDF — upload directly from your phone or computer." },
     ],
   },
 };

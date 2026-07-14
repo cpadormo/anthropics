@@ -18,7 +18,7 @@ export function EntityForm({
         {entity.fields.map((f) => {
           const value = initial?.[f.name];
           const stringValue = value == null ? "" : String(value);
-          const spanFull = f.type === "textarea" || f.type === "pdf";
+          const spanFull = f.type === "textarea" || f.type === "pdf" || f.type === "media";
           return (
             <div key={f.name} className={spanFull ? "md:col-span-2" : undefined}>
               <label className="label" htmlFor={f.name}>
@@ -56,6 +56,21 @@ export function EntityForm({
                   {stringValue && (
                     <p className="mt-1 text-xs" style={{ color: "var(--text-soft)" }}>
                       ✓ PDF already attached. Choose a new file to replace it, or leave blank to keep the current one.
+                    </p>
+                  )}
+                </>
+              ) : f.type === "media" ? (
+                <>
+                  <input
+                    id={f.name}
+                    name={f.name}
+                    type="file"
+                    accept="image/*,application/pdf"
+                    className="input file:mr-3 file:rounded-md file:border-0 file:bg-[color:var(--accent-soft)] file:px-3 file:py-1 file:text-sm file:font-medium file:text-[color:var(--text)] hover:file:cursor-pointer"
+                  />
+                  {stringValue && (
+                    <p className="mt-1 text-xs" style={{ color: "var(--text-soft)" }}>
+                      ✓ File already attached. Choose a new one to replace it, or leave blank to keep the current one.
                     </p>
                   )}
                 </>

@@ -36,6 +36,15 @@ async function buildData(entity: EntityConfig, formData: FormData) {
       }
       continue;
     }
+    if (field.type === "media") {
+      const file = raw as File | null;
+      if (file && typeof file === "object" && "arrayBuffer" in file && file.size > 0) {
+        const buffer = Buffer.from(await file.arrayBuffer());
+        const mime = file.type && file.type.length > 0 ? file.type : "application/octet-stream";
+        data[field.name] = `data:${mime};base64,${buffer.toString("base64")}`;
+      }
+      continue;
+    }
     if (raw == null) continue;
     const value = String(raw).trim();
     if (value === "" && !field.required) continue;
