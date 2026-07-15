@@ -310,7 +310,7 @@ export const entities: Record<string, EntityConfig> = {
         name: "category",
         label: "Category",
         type: "select",
-        options: ["Conference", "Lab", "Presentation", "Volunteer", "Campus", "Other"],
+        options: ["Internship / Position", "Conference", "Lab", "Presentation", "Volunteer", "Campus", "Other"],
         required: true,
       },
       { name: "date", label: "Date", type: "text", required: true },
