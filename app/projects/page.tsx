@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db/client";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { Download, ExternalLink, FolderKanban } from "lucide-react";
+import { Download, ExternalLink, FolderKanban, Video } from "lucide-react";
 import { dateStringToScore } from "@/lib/utils";
 
 export default async function ProjectsPage() {
@@ -43,6 +43,16 @@ export default async function ProjectsPage() {
                 </div>
               )}
 
+              {p.submissionVideo && (
+                <video
+                  src={p.submissionVideo}
+                  controls
+                  playsInline
+                  className="mt-4 w-full rounded-lg border"
+                  style={{ borderColor: "var(--border)" }}
+                />
+              )}
+
               <div className="mt-4 flex flex-wrap gap-2">
                 {p.submissionPdf && (
                   <a
@@ -63,6 +73,16 @@ export default async function ProjectsPage() {
                     className="btn-ghost"
                   >
                     <ExternalLink className="h-4 w-4" /> View slideshow
+                  </a>
+                )}
+                {p.submissionVideoUrl && (
+                  <a
+                    href={p.submissionVideoUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn-ghost"
+                  >
+                    <Video className="h-4 w-4" /> Watch video
                   </a>
                 )}
               </div>

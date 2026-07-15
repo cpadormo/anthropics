@@ -1,4 +1,4 @@
-export type FieldType = "text" | "textarea" | "number" | "url" | "select" | "file" | "json-array" | "pdf" | "media";
+export type FieldType = "text" | "textarea" | "number" | "url" | "select" | "file" | "json-array" | "pdf" | "media" | "video";
 
 export type EntityField = {
   name: string;
@@ -132,6 +132,8 @@ export const entities: Record<string, EntityConfig> = {
       { name: "instructions", label: "Instructions summary (optional)", type: "textarea", help: "What the project asked you to do." },
       { name: "submissionPdf", label: "Project submission — PDF (optional)", type: "pdf", help: "Upload the final PDF submission." },
       { name: "submissionUrl", label: "Project submission — Google Slides or PowerPoint link (optional)", type: "url", help: "Paste a share link if it's a slideshow." },
+      { name: "submissionVideo", label: "Project submission — Video file (optional)", type: "video", help: "Upload a .mov, .mp4, or .webm. Short clips only (under ~4 MB) — for longer videos use the video link below." },
+      { name: "submissionVideoUrl", label: "Project submission — Video link (optional)", type: "url", help: "Paste an unlisted YouTube, Vimeo, or Google Drive link for longer videos." },
     ],
   },
   paper: {

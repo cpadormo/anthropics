@@ -36,7 +36,7 @@ async function buildData(entity: EntityConfig, formData: FormData) {
       }
       continue;
     }
-    if (field.type === "media") {
+    if (field.type === "media" || field.type === "video") {
       const file = raw as File | null;
       if (file && typeof file === "object" && "arrayBuffer" in file && file.size > 0) {
         const buffer = Buffer.from(await file.arrayBuffer());

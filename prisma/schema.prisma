@@ -66,22 +66,24 @@ model ResearchLab {
 }
 
 model Project {
-  id            String   @id @default(cuid())
-  title         String
-  course        String?
-  date          String
-  grade         String   @default("")
-  instructions  String   @default("")
-  summary       String   @default("")
-  goal          String   @default("")
-  method        String   @default("")
-  outcome       String   @default("")
-  skills        String   @default("")
-  submissionPdf String?
-  submissionUrl String?
-  files         String   @default("[]")
-  thumbnail     String?
-  createdAt     DateTime @default(now())
+  id                 String   @id @default(cuid())
+  title              String
+  course             String?
+  date               String
+  grade              String   @default("")
+  instructions       String   @default("")
+  summary            String   @default("")
+  goal               String   @default("")
+  method             String   @default("")
+  outcome            String   @default("")
+  skills             String   @default("")
+  submissionPdf      String?
+  submissionUrl      String?
+  submissionVideo    String?
+  submissionVideoUrl String?
+  files              String   @default("[]")
+  thumbnail          String?
+  createdAt          DateTime @default(now())
 }
 
 model Paper {
