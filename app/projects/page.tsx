@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Download, ExternalLink, FolderKanban, Video } from "lucide-react";
 import { dateStringToScore } from "@/lib/utils";
+import { VideoPlayer } from "@/components/widgets/VideoPlayer";
 
 export default async function ProjectsPage() {
   const rows = await prisma.project.findMany();
@@ -43,15 +44,7 @@ export default async function ProjectsPage() {
                 </div>
               )}
 
-              {p.submissionVideo && (
-                <video
-                  src={p.submissionVideo}
-                  controls
-                  playsInline
-                  className="mt-4 w-full rounded-lg border"
-                  style={{ borderColor: "var(--border)" }}
-                />
-              )}
+              {p.submissionVideo && <VideoPlayer src={p.submissionVideo} title={p.title} />}
 
               <div className="mt-4 flex flex-wrap gap-2">
                 {p.submissionPdf && (

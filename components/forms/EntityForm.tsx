@@ -2,6 +2,7 @@
 
 import { useFormStatus } from "react-dom";
 import type { EntityConfig } from "@/lib/entities";
+import { BlobUploader } from "./BlobUploader";
 
 export function EntityForm({
   entity,
@@ -45,50 +46,11 @@ export function EntityForm({
                   ))}
                 </select>
               ) : f.type === "pdf" ? (
-                <>
-                  <input
-                    id={f.name}
-                    name={f.name}
-                    type="file"
-                    accept="application/pdf"
-                    className="input file:mr-3 file:rounded-md file:border-0 file:bg-[color:var(--accent-soft)] file:px-3 file:py-1 file:text-sm file:font-medium file:text-[color:var(--text)] hover:file:cursor-pointer"
-                  />
-                  {stringValue && (
-                    <p className="mt-1 text-xs" style={{ color: "var(--text-soft)" }}>
-                      ✓ PDF already attached. Choose a new file to replace it, or leave blank to keep the current one.
-                    </p>
-                  )}
-                </>
+                <BlobUploader name={f.name} accept="application/pdf" currentValue={stringValue} required={f.required} />
               ) : f.type === "media" ? (
-                <>
-                  <input
-                    id={f.name}
-                    name={f.name}
-                    type="file"
-                    accept="image/*,application/pdf"
-                    className="input file:mr-3 file:rounded-md file:border-0 file:bg-[color:var(--accent-soft)] file:px-3 file:py-1 file:text-sm file:font-medium file:text-[color:var(--text)] hover:file:cursor-pointer"
-                  />
-                  {stringValue && (
-                    <p className="mt-1 text-xs" style={{ color: "var(--text-soft)" }}>
-                      ✓ File already attached. Choose a new one to replace it, or leave blank to keep the current one.
-                    </p>
-                  )}
-                </>
+                <BlobUploader name={f.name} accept="image/*,application/pdf" currentValue={stringValue} required={f.required} />
               ) : f.type === "video" ? (
-                <>
-                  <input
-                    id={f.name}
-                    name={f.name}
-                    type="file"
-                    accept="video/*,.mov,.mp4,.webm,.m4v"
-                    className="input file:mr-3 file:rounded-md file:border-0 file:bg-[color:var(--accent-soft)] file:px-3 file:py-1 file:text-sm file:font-medium file:text-[color:var(--text)] hover:file:cursor-pointer"
-                  />
-                  {stringValue && (
-                    <p className="mt-1 text-xs" style={{ color: "var(--text-soft)" }}>
-                      ✓ Video already attached. Choose a new file to replace it, or leave blank to keep the current one.
-                    </p>
-                  )}
-                </>
+                <BlobUploader name={f.name} accept="video/*,.mov,.mp4,.webm,.m4v" currentValue={stringValue} required={f.required} />
               ) : (
                 <input
                   id={f.name}
